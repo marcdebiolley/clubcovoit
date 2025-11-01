@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes clubs</title>
+  <link rel="stylesheet" href="/css/text.css?v=3" />
+  <link rel="stylesheet" href="/css/buttons.css?v=3" />
+  <link rel="stylesheet" href="/css/forms.css?v=3" />
+  <link rel="stylesheet" href="/css/layout.css?v=3" />
+  <link rel="stylesheet" href="/css/pages/clubs.css?v=3" />
+  <link rel="stylesheet" href="/css/style.css?v=3" />
+</head>
+<body class="page-clubs">
+  <div id="app-navbar"></div>
+  <div class="container">
+    <section class="clubs-hero">
+      <div class="hero-icon">👥</div>
+      <h1 class="hero-title">Mes clubs</h1>
+      <p class="hero-subtitle">Gérez vos clubs et accédez à leurs événements</p>
+    </section>
+    <div class="page-header">
+      <div class="nav">
+        <a class="btn" href="/index.html">← Accueil</a>
+      </div>
+      <div class="nav">
+        <a class="btn" href="/club-create.html">➕ Créer un nouveau club</a>
+      </div>
+    </div>
+    <div id="clubsList" class="clubs-grid"></div>
+
+    <section class="form-section" style="margin-top:24px">
+      <h2>Mes prochains trajets</h2>
+      <div id="myUpcoming" class="clubs-grid"></div>
+    </section>
+  </div>
+  <script src="/js/header.js?v=3"></script>
+  <script>
+    function getUserToken() { return localStorage.getItem('userToken'); }
+    if (!getUserToken()) { window.location.href = '/index.html'; }
+
+    async function fetchJSON(url, options = {}) {
+      const headers = options.headers || {};
+      headers['X-User-Token'] = getUserToken();
+      const res = await fetch(url, { ...options, headers });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+      localStorage.removeItem('userToken');
+      window.location.href = '/index.html';
+    });
+
+    const listEl = document.getElementById('clubsList');
+    const params = new URLSearchParams(location.search);
+    const groupIdParam = params.get('id');
+
+    function truncate(text, len = 140) {
+      if (!text) return '';
+      return text.length > len ? text.slice(0, len - 1) + '…' : text;
+    }
+
+    function groupCard(g) {
+      const type = g.kind || g.type || 'Club';
+      const ownerBadge = g.role === 'owner' ? '<span class="badge badge-owner">propriétaire</span>' : '';
+      const desc = truncate(g.description || '', 160);
+      const eventsCount = (g.events_count != null ? g.events_count : (g.rides ? g.rides.length : null));
+      const membersCount = (g.members_count != null ? g.members_count : (g.members ? g.members.length : null));
+      const statsRow = `
+        <div class="stats stats-soft mt-8">
+          <div class="stat-card"><div class="stat-number">${eventsCount != null ? eventsCount : '-'}</div><div class="stat-label">Événements</div></div>
+          <div class="stat-card"><div class="stat-number">${membersCount != null ? membersCount : '-'}</div><div class="stat-label">Membres</div></div>
+        </div>`;
+      return `
+        <div class="car-card club-card">
+          <div class="car-header">
+            <div><strong>${g.name}</strong> ${ownerBadge}</div>
+            <div class="car-capacity">${type}</div>
+          </div>
+          <div class="chip-row"><span class="chip">${type}</span></div>
+          <div class="card-desc">${desc || '<span class="secondary">Aucune description</span>'}</div>
+          ${statsRow}
+          <div class="card-footer">
+            <a class="btn btn-primary btn-full" href="/club-detail.html?id=${g.id}">Voir le club</a>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadGroups() {
+      const groups = await fetchJSON('/api/v1/groups');
+      if (!groups || groups.length === 0) {
+        listEl.innerHTML = `
+          <div class="card grid-span-all empty-state">
+            <div class="empty-icon">👥</div>
+            <div class="muted mb-8">Aucun club pour le moment.</div>
+            <a class="btn btn-primary" href="/club-create.html">➕ Créer un nouveau club</a>
+          </div>
+        `;
+        return;
+      }
+      listEl.innerHTML = groups.map(groupCard).join('');
+    }
+
+    function rideItem(r) {
+      const dt = new Date(r.date + 'T' + (r.time || '00:00'));
+      const when = dt.toLocaleDateString('fr-FR') + (r.time ? ' • ' + r.time : '');
+      return `
+        <div class="car-card">
+          <div class="car-header">
+            <div><strong>${r.title || 'Événement'}</strong></div>
+            <div class="car-capacity">${when}</div>
+          </div>
+          <div class="card-desc">${(r.origin || '')}${r.destination ? ' → ' + r.destination : ''}</div>
+          <div class="card-footer">
+            <a class="btn btn-primary btn-full" href="/event-detail.html?eventId=${r.id}">Voir</a>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadMyUpcoming() {
+      try {
+        const box = document.getElementById('myUpcoming');
+        if (!box) return;
+        const mine = await fetchJSON('/api/v1/my_rides');
+        const now = new Date();
+        const all = ([]).concat(mine.as_driver || [], mine.as_passenger || []);
+        const upcoming = all.filter(r => {
+          try { return new Date(r.date + 'T' + (r.time || '00:00')) >= now; } catch { return false; }
+        }).sort((a,b)=> new Date(a.date) - new Date(b.date)).slice(0, 8);
+        box.innerHTML = upcoming.length ? upcoming.map(rideItem).join('') : '<div class="secondary">Aucun trajet à venir</div>';
+      } catch {}
+    }
+
+    if (groupIdParam) {
+      // If someone navigates with ?id=, redirect to club detail
+      location.href = '/club-detail.html?id=' + encodeURIComponent(groupIdParam);
+    } else {
+      loadGroups();
+      loadMyUpcoming();
+    }
+  </script>
+</body>
+</html>

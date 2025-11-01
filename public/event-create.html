@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Créer un événement</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/pages/event-create.css" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.css"
+    type="text/css"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.min.js"></script>
+</head>
+<body class="page-create">
+  <div id="app-navbar"></div>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="nav">
+        <a id="backToClub" class="btn" href="/clubs.html">← Mes clubs</a>
+      </div>
+    </div>
+
+    <div class="header">
+      <h1>🗓️ Créer un événement</h1>
+      <p>Renseignez les informations de votre événement</p>
+    </div>
+
+    <div id="clubContext" class="alert hidden"></div>
+
+    <div class="card">
+      <form id="eventCreateForm">
+        <div class="form-grid">
+          <div class="col-left">
+            <div class="form-group">
+              <label for="ev_name">Nom de l'événement *</label>
+              <input id="ev_name" required placeholder="Ex: Match à Bruxelles" />
+            </div>
+            <div class="row-2">
+              <div class="form-group">
+                <label for="ev_date">Date *</label>
+                <input id="ev_date" type="date" required />
+              </div>
+              <div class="form-group">
+                <label for="ev_time">Heure</label>
+                <input id="ev_time" type="time" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="ev_place">Destination *</label>
+              <div id="evPlaceGeocoder"></div>
+              <input id="ev_place" required placeholder="Ex: Stade / Salle / Lieu d'arrivée" />
+            </div>
+            <div class="form-group">
+              <label for="ev_desc">Description</label>
+              <textarea id="ev_desc" placeholder="Infos complémentaires..."></textarea>
+            </div>
+            <div class="row-2">
+              <div class="form-group">
+                <label for="ev_color">Couleur de l'événement</label>
+                <input id="ev_color" type="color" value="#2563eb" />
+              </div>
+              <div class="form-group">
+                <label>Logo de l'événement</label>
+                <select id="ev_icon_select">
+                  <option value="">— Choisir une icône —</option>
+                  <option value="/assets/icons/flag.svg">Drapeau</option>
+                  <option value="/assets/icons/car.svg">Voiture</option>
+                  <option value="/assets/icons/star.svg">Étoile</option>
+                  <option value="/assets/icons/trophy.svg">Trophée</option>
+                  <option value="/assets/icons/marker.svg">Marqueur</option>
+                  <option value="/assets/icons/calendar.svg">Calendrier</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="ev_icon">Ou image (URL)</label>
+              <input id="ev_icon" placeholder="https://.../mon-icone.png" />
+            </div>
+            <button class="btn" type="submit">Créer l'événement</button>
+          </div>
+          <div class="col-right">
+            <div class="preview">
+              <div class="preview-header">Aperçu</div>
+              <div class="preview-body">
+                <div class="preview-icon" id="previewIcon"><span class="placeholder">🛈</span></div>
+                <div class="preview-info">
+                  <div class="title" id="previewTitle">Nom de l'événement</div>
+                  <div class="sub" id="previewSub">Date • Destination</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/header.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/event-create.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Créer un covoiturage d'activité (sport & extra-sport)</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/pages/create.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="page-create">
+  <div id="app-navbar"></div>
+  <div class="container">
+    <div class="header">
+      <h1>🏃‍♀️ Créer un covoiturage d'activité</h1>
+      <p>Organisez les trajets pour vos activités sportives et extra-sportives</p>
+    </div>
+
+    <div class="page-header">
+      <div class="nav">
+        <a class="btn" href="/index.html">← Retour aux activités</a>
+      </div>
+    </div>
+
+    <div id="groupContext" class="alert hidden"></div>
+
+    <div class="card">
+      <form id="createForm">
+        <div class="form-group">
+          <label for="title">Titre de l'activité *</label>
+          <input id="title" required placeholder="Ex: Entraînement de basket à Bruxelles" />
+        </div>
+        <div class="form-group">
+          <label for="date">Date *</label>
+          <input id="date" type="date" required />
+        </div>
+        <div class="form-group">
+          <label for="time">Heure</label>
+          <input id="time" type="time" />
+        </div>
+        <div class="form-group">
+          <label for="origin">Lieu de départ *</label>
+          <input id="origin" required placeholder="Ex: Liège (club, école, salle)" />
+        </div>
+        <div class="form-group">
+          <label for="destination">Destination de l'activité *</label>
+          <input id="destination" required placeholder="Ex: Bruxelles (stade, dojo, gymnase)" />
+        </div>
+        <div class="form-group">
+          <label for="seats_total">Places totales *</label>
+          <input id="seats_total" type="number" min="1" max="99" required value="4" />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe (optionnel, protège le covoiturage)</label>
+          <input id="password" type="password" placeholder="Laisser vide pour public" />
+        </div>
+        <div class="form-group">
+          <label for="note">Note</label>
+          <textarea id="note" placeholder="Infos complémentaires (équipement, point de rendez-vous, vestiaires, etc.)..."></textarea>
+        </div>
+        <button class="btn" type="submit">🚀 Créer</button>
+      </form>
+
+      <div id="inviteBox" class="link-box hidden mt-20">
+        <input type="text" id="inviteLink" readonly />
+        <button id="copyInviteBtn" class="btn btn-small">📋 Copier</button>
+      </div>
+    </div>
+  </div>
+  <script src="/js/header.js"></script>
+  <script src="/js/create.js"></script>
+</body>
+</html>

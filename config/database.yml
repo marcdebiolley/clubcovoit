@@ -1,0 +1,17 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  host: localhost
+
+development:
+  <<: *default
+  database: mon_covoiturage_dev
+
+test:
+  <<: *default
+  database: mon_covoiturage_test
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>

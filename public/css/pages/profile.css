@@ -1,0 +1,397 @@
+/* Page: profile */
+.page-profile .card {
+  align-items: center;
+}
+
+.page-profile #profileForm {
+  max-width: 100%;
+}
+
+.page-profile #avatarPreview {
+  border-radius: var(--radius-full);
+}
+
+.page-profile .profile-header {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px 20px;
+  margin: 16px auto 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  text-align: center;
+}
+
+.page-profile .profile-avatar {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 3rem;
+  color: #fff;
+}
+
+.page-profile .profile-header h1 {
+  font-size: var(--text-h1);
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.page-profile .profile-subtitle {
+  color: var(--gray);
+  font-size: var(--text-small);
+  margin-bottom: var(--space-xl);
+}
+
+.page-profile .tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid #E5E7EB;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.page-profile .tab {
+  padding: 1rem 2rem;
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color .3s ease;
+  white-space: nowrap;
+}
+
+.page-profile .tab.active {
+  color: var(--primary);
+}
+
+.page-profile .tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 3px 3px 0 0;
+}
+
+.page-profile .form-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: var(--space-xl);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.page-profile .form-section h2 {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-profile .form-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* default mobile */
+  gap: 1.25rem;
+}
+
+.page-profile .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.page-profile .form-group label {
+  font-weight: 600;
+  color: var(--dark);
+  font-size: .9375rem;
+}
+
+.page-profile .form-group input,
+.page-profile .form-group select {
+  padding: .875rem 1rem;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all .3s ease;
+  background: #fff;
+}
+
+.page-profile .form-group input:focus,
+.page-profile .form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+}
+
+.page-profile .btn-save {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all .3s ease;
+  margin-top: 1rem;
+}
+
+.page-profile .btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, .25);
+}
+
+.page-profile .clubs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.page-profile .club-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  transition: all .3s ease;
+  border: 2px solid transparent;
+}
+
+.page-profile .club-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, .15);
+  border-color: var(--primary);
+}
+
+.page-profile .club-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.page-profile .club-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.page-profile .club-role {
+  padding: .375rem .875rem;
+  background: var(--gray-light);
+  border-radius: 20px;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--gray);
+}
+
+.page-profile .club-role.admin {
+  background: linear-gradient(135deg, rgba(79, 70, 229, .1), rgba(6, 182, 212, .1));
+  color: var(--primary);
+}
+
+.page-profile .club-meta {
+  color: var(--gray);
+  font-size: .9375rem;
+  margin-bottom: 1.25rem;
+}
+
+.page-profile .club-actions {
+  display: flex;
+  gap: .75rem;
+}
+
+.page-profile .btn-small {
+  padding: .625rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: .875rem;
+  cursor: pointer;
+  transition: all .3s ease;
+  border: none;
+}
+
+.page-profile .btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+}
+
+.page-profile .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, .25);
+}
+
+.page-profile .btn-secondary {
+  background: var(--gray-light);
+  color: var(--dark);
+  border: 2px solid #E5E7EB;
+}
+
+.page-profile .btn-secondary:hover {
+  background: #fff;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.page-profile .trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.page-profile .trip-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid var(--primary);
+  transition: all .3s ease;
+}
+
+.page-profile .trip-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, .08);
+}
+
+.page-profile .trip-info h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: .25rem;
+}
+
+.page-profile .trip-date {
+  color: var(--gray);
+  font-size: .9375rem;
+}
+
+.page-profile .trip-status {
+  padding: .5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: .875rem;
+}
+
+.page-profile .trip-status.driver {
+  background: linear-gradient(135deg, rgba(16, 185, 129, .1), rgba(6, 182, 212, .1));
+  color: var(--success);
+}
+
+.page-profile .trip-status.passenger {
+  background: linear-gradient(135deg, rgba(79, 70, 229, .1), rgba(99, 102, 241, .1));
+  color: var(--primary);
+}
+
+@media (max-width: 768px) {
+
+  .page-profile .profile-header,
+  .page-profile .form-section {
+    padding: 2rem 1.25rem;
+  }
+
+  .page-profile .form-grid { 
+    grid-template-columns: 1fr; 
+  }
+
+  .page-profile .clubs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 720px) {
+  .page-profile .form-section[data-section="info"] .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Stats grid styling */
+.page-profile .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.page-profile .stat-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 12px;
+  text-align: center;
+}
+
+.page-profile .stat-number {
+  color: #2563eb;
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.page-profile .stat-label {
+  margin-top: 6px;
+  color: var(--gray);
+  font-size: 14px;
+}
+
+@media (max-width: 960px) {
+  .page-profile .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Match clubs page width */
+.page-profile .container { max-width: 1200px; }
+
+/* Single-column wrapper so section spans full width */
+.page-profile .info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Empty state (upcoming rides) */
+.page-profile .empty-state {
+  text-align: center;
+  padding: 24px 16px;
+}
+.page-profile .empty-icon {
+  font-size: 28px;
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5ff;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+.page-profile .empty-title {
+  font-weight: 700;
+  color: var(--secondary);
+}
+.page-profile .empty-sub {
+  color: var(--gray);
+  font-size: 14px;
+}
+
+.page-profile .info-grid .form-section {
+  margin-bottom: 0;
+}
+
+@media (max-width: 960px) {
+  .page-profile .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

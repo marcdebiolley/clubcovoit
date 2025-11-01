@@ -1,0 +1,7 @@
+/* Page: create (nouvelle activité) */
+.page-create #createForm {
+  max-width: 640px;
+}
+.page-create #inviteBox {
+  margin-top: var(--space-sm);
+}

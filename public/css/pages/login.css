@@ -1,0 +1,9 @@
+/* Page: login */
+.page-login .card {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.page-login .header p {
+  color: var(--secondary-light);
+}

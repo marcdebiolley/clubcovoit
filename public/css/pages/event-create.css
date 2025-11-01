@@ -1,0 +1,18 @@
+/* Two-column responsive layout for event create */
+.form-grid { display: grid; gap: 18px; }
+.form-grid .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.col-left, .col-right { display: block; }
+
+@media (min-width: 900px) {
+  .form-grid { grid-template-columns: 1.2fr .8fr; align-items: start; }
+}
+
+/* Preview card */
+.preview { border: 1px solid var(--surface-border); border-radius: 12px; overflow: hidden; background: var(--white); }
+.preview-header { padding: 12px 14px; border-bottom: 1px solid var(--surface-border); font-weight: 700; color: var(--dark); }
+.preview-body { display: grid; grid-template-columns: 72px 1fr; gap: 12px; padding: 14px; align-items: center; }
+.preview-icon { width: 64px; height: 64px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; border: 1px solid #e5e7eb; overflow: hidden; }
+.preview-icon img, .preview-icon svg { max-width: 100%; max-height: 100%; display: block; }
+.preview-icon .placeholder { color: #9ca3af; font-size: 22px; }
+.preview-info .title { font-weight: 800; color: var(--dark); }
+.preview-info .sub { color: var(--gray); font-size: .95rem; }

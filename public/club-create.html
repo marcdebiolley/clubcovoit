@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Créer un club</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="page-clubs">
+  <div id="app-navbar"></div>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="nav">
+        <a class="btn" href="/clubs.html">← Annuler</a>
+      </div>
+    </div>
+
+    <div class="header">
+      <h1>Créer un club</h1>
+      <p>Définissez les informations de votre club</p>
+    </div>
+
+    <div class="card">
+      <form id="clubCreateForm">
+        <div class="form-group">
+          <label for="cc_name">Nom du club *</label>
+          <input id="cc_name" placeholder="Ex: FC Liège U15" required />
+        </div>
+        <div class="form-group">
+          <label for="cc_type">Type</label>
+          <select id="cc_type">
+            <option value="Sport">Sport</option>
+            <option value="Culture">Culture</option>
+            <option value="Loisir">Loisir</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="cc_desc">Description</label>
+          <textarea id="cc_desc" placeholder="Objectif, règles, infos utiles..."></textarea>
+        </div>
+        <button class="btn" type="submit">Créer le club</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/header.js"></script>
+  <script src="/js/club-create.js"></script>
+</body>
+</html>

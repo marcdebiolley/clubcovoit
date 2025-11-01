@@ -1,0 +1,258 @@
+  <template id="editCarDialogTpl">
+    <dialog data-edit-dialog>
+      <form method="dialog" class="form" data-edit-form>
+        <h3>Modifier l'adresse</h3>
+        <div class="form-group">
+          <label>Rechercher</label>
+          <div data-geocoder></div>
+        </div>
+        <div class="form-group">
+          <label>Adresse complète</label>
+          <input data-addr />
+          <input data-lat type="hidden" />
+          <input data-lng type="hidden" />
+        </div>
+        <div class="nav mt-8">
+          <button type="button" class="btn btn-secondary" data-cancel>Annuler</button>
+          <button class="btn" type="submit">Enregistrer</button>
+        </div>
+      </form>
+    </dialog>
+  </template>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Événement</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css?v=4" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/pages/ride.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/pages/event-detail.css" />
+  <!-- Font Awesome (forced for this page) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css?v=1" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.css"
+    type="text/css"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.min.js"></script>
+</head>
+<body class="page-ride">
+  <div id="app-navbar"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1 id="evTitle">📅 Événement</h1>
+      <p id="evSubtitle">Détails et participation</p>
+    </div>
+
+    <div class="page-header">
+      <div class="nav">
+        <a id="backToClub" class="btn" href="/clubs.html">← Retour</a>
+      </div>
+      <div class="nav actions">
+        <button id="joinDriverBtn" class="btn btn-xs">🚘 Je conduis</button>
+        <button id="joinPassengerBtn" class="btn btn-secondary btn-xs">👤 Je suis passager</button>
+        <button id="deleteEventBtn" class="btn btn-danger btn-xs" style="display:none">Supprimer l'événement</button>
+      </div>
+    </div>
+
+    <div class="card event-header" id="eventHeader">
+      <h2 id="eventName">—</h2>
+      <div><strong>📍</strong> <span id="eventPlace">—</span></div>
+      <div class="btn-row mt-8">
+        <a id="evGmaps" class="btn btn-xs" target="_blank" rel="noopener">Google Maps</a>
+        <a id="evWaze" class="btn btn-xs btn-secondary" target="_blank" rel="noopener">Waze</a>
+        <button id="copyPlaceBtn" class="btn btn-xs">Copier l'adresse</button>
+      </div>
+      <div><strong>📅</strong> <span id="eventDate">—</span></div>
+      <div><strong>ℹ️</strong> <span id="eventDesc">—</span></div>
+
+      <div class="stats header-stats">
+        <div class="stat-card">
+          <div class="stat-number" id="statDrivers">0</div>
+          <div class="stat-label">Conducteurs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statPassengers">0</div>
+          <div class="stat-label">Passagers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statSeats">0</div>
+          <div class="stat-label">Places réservées</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ℹ️ Comment ça marche ?</h3>
+      <ul>
+        <li>Les <strong>conducteurs</strong> créent une voiture et indiquent leur <strong>point de départ</strong>, l'heure et les places.</li>
+        <li>Les <strong>passagers</strong> rejoignent une voiture disponible ou attendent une affectation.</li>
+        <li>La <strong>destination</strong> est définie lors de la création de l'événement.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>🚘 Voitures</h3>
+      <div id="carsContainer" class="cars-list"></div>
+    </div>
+
+    <div class="card">
+      <h3>🗺️ Carte des points de départ</h3>
+      <div id="evMap" class="map-container"></div>
+      <div class="nav mt-8" style="justify-content: space-between; align-items: center;">
+        <div class="map-legend">Carte interactive (cliquez sur les points)</div>
+        <button id="centerDestBtn" class="btn btn-xs">Centrer sur la destination</button>
+      </div>
+    </div>
+
+    <div class="card" id="waitingCard">
+      <h3>⏳ En attente d'affectation</h3>
+      <ul id="waitingList" class="passengers-list"></ul>
+    </div>
+  </div>
+
+  <!-- Modal: Driver -->
+  <dialog id="driverModal">
+    <form id="driverForm" method="dialog" class="form">
+      <h3>Je conduis</h3>
+      <div class="form-group">
+        <label for="dname">Votre nom *</label>
+        <input id="dname" required />
+      </div>
+      <div class="form-group">
+        <label for="daddr">Adresse de départ *</label>
+        <div id="daddrGeocoder"></div>
+        <input id="daddr" placeholder="Rue, Ville" required />
+      </div>
+      <input id="daddr_lat" type="hidden" />
+      <input id="daddr_lng" type="hidden" />
+      <div class="form-group">
+        <label for="dtime">Heure de départ</label>
+        <input id="dtime" type="time" />
+      </div>
+      <div class="form-group">
+        <label for="dseats">Places offertes</label>
+        <select id="dseats">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div class="nav modal-actions">
+        <button type="button" class="btn btn-secondary btn-xs" onclick="document.getElementById('driverModal').close()">Annuler</button>
+        <button class="btn btn-xs" type="submit">Valider</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Templates -->
+  <template id="passengerItemTpl">
+    <li class="passenger">
+      <span class="avatar" data-avatar>?</span>
+      <span data-name></span>
+      <span class="btn-row mt-0" data-pass-actions>
+        <button class="btn btn-icon btn-xs btn-outline" data-edit-pass title="Modifier" aria-label="Modifier">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l9.06-9.06.92.92L5.92 19.58zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+        </button>
+        <button class="btn btn-icon btn-xs btn-outline" data-unassign-pass title="Retirer" aria-label="Retirer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V3L7 8l5 5V9a6 6 0 016 6c0 1.7-.68 3.24-1.78 4.36l1.42 1.42A7.96 7.96 0 0020 15c0-4.42-3.58-8-8-8z" fill="currentColor"/></svg>
+        </button>
+        <button class="btn btn-icon btn-xs btn-outline-danger" data-del-pass title="Supprimer" aria-label="Supprimer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19a2 2 0 002 2h8a2 2 0 002-2V7H6v12zm3.46-9h1.5v8h-1.5V10zm5.08 0h1.5v8h-1.5V10zM15.5 4l-1-1h-5l-1 1H5v2h14V4h-3.5z" fill="currentColor"/></svg>
+        </button>
+      </span>
+    </li>
+  </template>
+
+  <template id="emptySeatTpl">
+    <li class="empty-seat">
+      <div class="seat-title">Place libre</div>
+      <div class="seat-sub">En attente d'un passager</div>
+    </li>
+  </template>
+
+  <template id="assignTpl">
+    <div class="assign-row">
+      <select data-assign-select>
+        <option value="">Choisir un passager</option>
+      </select>
+      <button class="btn btn-xs" data-assign-car>Affecter</button>
+    </div>
+  </template>
+
+  
+
+  <template id="carCardTpl">
+    <div class="car-card">
+      <div class="car-header">
+        <div>
+          <strong data-car-name>Voiture</strong>
+          <div class="muted-line">Départ: <span data-car-address>—</span> <span data-car-time></span></div>
+          <div class="btn-row mt-8" data-addr-actions>
+            <a class="btn btn-xs" data-gmaps target="_blank" rel="noopener">Google Maps</a>
+            <a class="btn btn-xs btn-secondary" data-waze target="_blank" rel="noopener">Waze</a>
+            <button class="btn btn-xs" data-copy>Copier</button>
+          </div>
+        </div>
+        <div class="car-capacity" data-car-capacity></div>
+      </div>
+      <h3>Conducteur</h3>
+      <div class="driver-box" data-car-driver>—</div>
+      <h3>Passagers</h3>
+      <ul class="passengers-list" data-passengers></ul>
+      <div class="car-actions mt-8">
+        <button class="btn btn-xs" data-book>Réserver une place</button>
+        <button class="btn btn-secondary btn-xs" data-edit style="display:none">Modifier l'adresse</button>
+        <button class="btn btn-danger btn-xs" data-delete style="display:none">Supprimer la voiture</button>
+      </div>
+      <div data-assign></div>
+      <div data-dialog></div>
+    </div>
+  </template>
+
+  <!-- Modal: Book seat on a car -->
+  <dialog id="bookDialog">
+    <form id="bookForm" method="dialog" class="form">
+      <h3>Réserver une place</h3>
+      <div class="form-group">
+        <label for="bookName">Votre nom *</label>
+        <input id="bookName" required />
+      </div>
+      <div class="nav modal-actions">
+        <button type="button" class="btn btn-secondary btn-xs" onclick="document.getElementById('bookDialog').close()">Annuler</button>
+        <button class="btn btn-xs" type="submit">Réserver</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Passenger -->
+  <dialog id="passengerModal">
+    <form id="passengerForm" method="dialog" class="form">
+      <h3>Je suis passager</h3>
+      <div class="form-group">
+        <label for="pname">Votre nom *</label>
+        <input id="pname" required />
+      </div>
+      <div class="nav modal-actions">
+        <button type="button" class="btn btn-secondary btn-xs" onclick="document.getElementById('passengerModal').close()">Annuler</button>
+        <button class="btn btn-xs" type="submit">Valider</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/js/header.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/event-detail.js?v=4"></script>
+</body>
+</html>

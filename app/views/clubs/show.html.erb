@@ -1,0 +1,18 @@
+<div class="header">
+  <h1>👥 Club</h1>
+  <p>Détails du club, événements et membres</p>
+</div>
+<div class="page-header">
+  <div class="nav">
+    <a class="btn" href="/clubs">← Mes clubs</a>
+  </div>
+</div>
+
+<div id="groupDetail"></div>
+
+<% content_for :scripts do %>
+  <script>
+    window.groupId = <%= @group.id %>;
+  </script>
+  <script src="/js/club.js"></script>
+<% end %>

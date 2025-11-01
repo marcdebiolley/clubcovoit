@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion - Accès aux activités (sport & extra-sport)</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/pages/login.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="page-login">
+  <div class="container">
+    <div class="header">
+      <h1>🔐 Connexion</h1>
+      <p>Accédez à l'organisation de vos trajets d'activités sportives et extra-sportives</p>
+    </div>
+
+    <div class="card">
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input id="email" type="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe *</label>
+          <input id="password" type="password" required />
+        </div>
+        <button class="btn" type="submit">Se connecter</button>
+      </form>
+      <div style="margin-top:10px;">
+        <a class="btn btn-secondary btn-small" href="/signup.html">Créer un compte</a>
+      </div>
+    </div>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
+</html>

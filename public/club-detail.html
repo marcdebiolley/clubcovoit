@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Club</title>
+  <link rel="stylesheet" href="/css/text.css?v=3" />
+  <link rel="stylesheet" href="/css/buttons.css?v=3" />
+  <link rel="stylesheet" href="/css/forms.css?v=3" />
+  <link rel="stylesheet" href="/css/layout.css?v=3" />
+  <link rel="stylesheet" href="/css/pages/clubs.css?v=3" />
+  <link rel="stylesheet" href="/css/style.css?v=3" />
+  <link rel="stylesheet" href="/css/pages/club-detail.css?v=2" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+</head>
+<body class="page-clubs">
+  <div id="app-navbar"></div>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="nav">
+        <a class="btn" href="/clubs.html">← Mes clubs</a>
+      </div>
+      <div class="nav">
+        <a class="btn" id="createEventBtn" href="/event-create.html">➕ Créer un événement</a>
+      </div>
+    </div>
+
+    <div id="groupDetail"></div>
+  </div>
+
+  <script src="/js/header.js?v=3"></script>
+  <script src="/js/config.js?v=3"></script>
+  <script>
+    function getUserToken() { return localStorage.getItem('userToken'); }
+    // Deterministic color per event id
+    function colorFor(id) {
+      const palette = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0ea5e9', '#16a34a', '#f59e0b', '#ef4444', '#9333ea'];
+      const idx = Math.abs(parseInt(id, 10) || 0) % palette.length;
+      return palette[idx];
+    }
+
+    function buildMembersTable(g) {
+      const rows = (g.members || []).map(m => `
+        <tr>
+          <td>${m.id}</td>
+          <td>${m.display_name || ''}</td>
+          <td>${m.first_name || ''}</td>
+          <td>${m.last_name || ''}</td>
+          <td>${m.role}</td>
+        </tr>
+      `).join('');
+      return `
+        <div class="table-wrap">
+          <table class="table-default">
+            <thead>
+              <tr>
+                <th class="th-cell">ID</th>
+                <th class="th-cell">Pseudo</th>
+                <th class="th-cell">Prénom</th>
+                <th class="th-cell">Nom</th>
+                <th class="th-cell">Rôle</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td colspan="5" class="td-empty">Aucun membre</td></tr>'}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function buildRidesTable(g) {
+      const rows = (g.rides || []).map(r => `
+        <tr>
+          <td>${r.title || ''}</td>
+          <td>${r.date || ''}</td>
+          <td>${r.time || ''}</td>
+          <td>${r.origin || ''}</td>
+          <td>${r.destination || ''}</td>
+          <td>${r.drivers_count != null ? r.drivers_count : ''}</td>
+          <td>${r.passengers_count != null ? r.passengers_count : ''}</td>
+        </tr>
+      `).join('');
+      return `
+        <div class="table-wrap">
+          <table class="table-default">
+            <thead>
+              <tr>
+                <th class="th-cell">Titre</th>
+                <th class="th-cell">Date</th>
+                <th class="th-cell">Heure</th>
+                <th class="th-cell">Départ (si défini)</th>
+                <th class="th-cell">Destination</th>
+                <th class="th-cell">Conducteurs</th>
+                <th class="th-cell">Passagers</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows || '<tr><td colspan="7" class="td-empty">Aucun événement</td></tr>'}
+            </tbody>
+          </table>
+        </div>`;
+    }
+
+    function buildStatsBlock(g, upcoming) {
+      return `
+        <div class="stats">
+          <div class="stat-card"><div class="stat-number">${(g.rides || []).length}</div><div class="stat-label">Total événements</div></div>
+          <div class="stat-card"><div class="stat-number">${upcoming.length}</div><div class="stat-label">À venir</div></div>
+          <div class="stat-card"><div class="stat-number">${g.members_count != null ? g.members_count : (g.members ? g.members.length : '-')}</div><div class="stat-label">Membres</div></div>
+        </div>`;
+    }
+
+    function buildInviteBox(invite_code) {
+      if (!invite_code) return '<div class="secondary">Aucun code d\'invitation disponible</div>';
+      const inviteUrl = `${location.origin}/clubs.html?invite=${encodeURIComponent(invite_code)}`;
+      return `
+        <div class="link-box">
+          <input id="inviteLinkInput" value="${invite_code}" readonly />
+          <button id="copyInviteLink" class="btn btn-small">📋 Copier le code</button>
+        </div>`;
+    }
+
+    function removeLegacyLeaveButtons(root = document) {
+      root.querySelectorAll('#leaveGroupBtn, button, a').forEach(el => {
+        if (el.id === 'leaveGroupBtn') { el.remove(); return; }
+        const txt = (el.textContent || '').trim().toLowerCase();
+        if (txt === 'quitter le club') el.remove();
+      });
+    }
+    if (!getUserToken()) {
+      try {
+        const wrap = document.querySelector('.container');
+        if (wrap) {
+          wrap.innerHTML = `
+            <div class="card">
+              <h3>Connexion requise</h3>
+              <p class="secondary">Vous devez être connecté pour voir ce club.</p>
+              <div class="btn-row mt-8">
+                <a class="btn" href="/index.html">Se connecter</a>
+              </div>
+            </div>`;
+        }
+      } catch {}
+      // stop script
+      throw new Error('AUTH_REQUIRED');
+    }
+
+    async function fetchJSON(url, options = {}) {
+      const headers = options.headers || {};
+      headers['X-User-Token'] = getUserToken();
+      if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+      const res = await fetch(url, { ...options, headers });
+      if (!res.ok) {
+        let msg = 'HTTP ' + res.status;
+        try {
+          const data = await res.json();
+          if (data && (data.error || data.message)) msg = data.error || data.message;
+        } catch { try { msg = await res.text(); } catch {} }
+        throw new Error(msg);
+      }
+      try { return await res.json(); } catch { return null; }
+    }
+
+    function setLoading(el, on) {
+      if (!el) return;
+      el.disabled = !!on;
+      if (on) {
+        el.dataset._label = el.textContent;
+        el.textContent = '…';
+      } else if (el.dataset._label) {
+        el.textContent = el.dataset._label;
+        delete el.dataset._label;
+      }
+    }
+
+    function showToast(message, kind = 'info') {
+      let box = document.getElementById('toastContainer');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'toastContainer';
+        box.style.position = 'fixed';
+        box.style.right = '20px';
+        box.style.bottom = '20px';
+        box.style.zIndex = '1000';
+        box.style.display = 'flex';
+        box.style.flexDirection = 'column';
+        box.style.gap = '8px';
+        document.body.appendChild(box);
+      }
+      const el = document.createElement('div');
+      el.textContent = message;
+      el.style.background = kind === 'error' ? '#fee2e2' : '#eef2ff';
+      el.style.border = '1px solid ' + (kind === 'error' ? '#fecaca' : '#c7d2fe');
+      el.style.color = kind === 'error' ? '#991b1b' : '#1e3a8a';
+      el.style.padding = '10px 14px';
+      el.style.borderRadius = '8px';
+      el.style.boxShadow = '0 4px 12px rgba(0,0,0,.12)';
+      box.appendChild(el);
+      setTimeout(() => { el.remove(); if (!box.children.length) box.remove(); }, 2500);
+    }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+      localStorage.removeItem('userToken');
+      window.location.href = '/index.html';
+    });
+
+    const params = new URLSearchParams(location.search);
+    const groupIdParam = params.get('id') || (window.groupId ? String(window.groupId) : null);
+    const groupDetail = document.getElementById('groupDetail');
+    let currentGroupId = null;
+
+    function rideRow(r, gid) {
+      const dt = new Date(r.date + 'T' + (r.time || '00:00'));
+      const drivers = r.drivers_count != null ? r.drivers_count : (Array.isArray(r.drivers) ? r.drivers.length : '-');
+      const passengers = r.passengers_count != null ? r.passengers_count : (Array.isArray(r.passengers) ? r.passengers.length : '-');
+      const seats = r.seats_taken != null ? r.seats_taken : '-';
+      const route = `${r.origin ? `<span class=\"address-link\" data-address=\"${(r.origin||'').replace(/\"/g,'&quot;')}\">${r.origin}</span>` : ''}${r.destination ? ` → <span class=\"address-link\" data-address=\"${(r.destination||'').replace(/\"/g,'&quot;')}\">${r.destination}</span>` : ''}` || '';
+      const origin = r.origin || '';
+      const dest = r.destination || '';
+      const mapId = `map_${gid}_${r.id}`;
+      const evColor = r.color || colorFor(r.id);
+      return `
+        <div class="event-tile" style="border-left:4px solid ${evColor}">
+          <div class="car-header">
+            <div class="car-driver">${r.title}</div>
+          </div>
+          <div>
+            📍 ${route}
+            ${origin ? `<div class=\"mt-8\">
+              <a class=\"btn btn-xs\" target=\"_blank\" rel=\"noopener\" href=\"https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(origin)}\">Google Maps (départ)</a>
+              <a class=\"btn btn-xs btn-secondary\" target=\"_blank\" rel=\"noopener\" href=\"https://waze.com/ul?q=${encodeURIComponent(origin)}&navigate=yes\">Waze</a>
+              <button class=\"btn btn-xs\" data-copy-address=\"${origin.replace(/"/g,'&quot;')}\">Copier</button>
+            </div>` : ''}
+            ${dest ? `<div class=\"mt-8\">
+              <a class=\"btn btn-xs\" target=\"_blank\" rel=\"noopener\" href=\"https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}\">Google Maps (destination)</a>
+              <a class=\"btn btn-xs btn-secondary\" target=\"_blank\" rel=\"noopener\" href=\"https://waze.com/ul?q=${encodeURIComponent(dest)}&navigate=yes\">Waze</a>
+              <button class=\"btn btn-xs\" data-copy-address=\"${dest.replace(/"/g,'&quot;')}\">Copier</button>
+            </div>` : ''}
+          </div>
+          <div>🗓️ ${dt.toLocaleDateString('fr-FR')}${r.time ? ' à ' + r.time : ''}</div>
+          <div class="stats mt-8">
+            <div class="stat-card"><div class="stat-number">${drivers}</div><div class="stat-label">Conducteurs</div></div>
+            <div class="stat-card"><div class="stat-number">${passengers}</div><div class="stat-label">Passagers</div></div>
+            <div class="stat-card"><div class="stat-number">${seats}</div><div class="stat-label">Places réservées</div></div>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn-xs" href="/event-detail.html?clubId=${gid}&eventId=${r.id}">Voir l'événement</a>
+            <button class="btn btn-xs hidden" data-edit-event="${r.id}">Modifier</button>
+            <button class="btn btn-xs btn-danger hidden" data-del-event="${r.id}">Supprimer</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Initialize the club Events map with clustering from all rides
+    async function initClubEventsMap(rides){
+      try {
+        const mapEl = document.getElementById('eventsMap');
+        if (!mapEl) return;
+        if (!Array.isArray(rides)) rides = [];
+        if (!window.__MAPBOX_TOKEN || !window.mapboxgl) {
+          mapEl.innerHTML = '<div class="secondary">Carte indisponible (token Mapbox manquant)</div>';
+          return;
+        }
+        if (mapEl.dataset.inited) return;
+
+        mapboxgl.accessToken = window.__MAPBOX_TOKEN;
+        const map = new mapboxgl.Map({
+          container: 'eventsMap',
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [4.4699, 50.5039],
+          zoom: 7
+        });
+        map.addControl(new mapboxgl.NavigationControl());
+
+        const cacheKey = 'club_ev_geo_cache_v1';
+        const cache = (() => { try { return JSON.parse(localStorage.getItem(cacheKey) || '{}'); } catch { return {}; } })();
+        async function geocode(q){
+          if (!q) return null;
+          if (cache[q]) return cache[q];
+          const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${encodeURIComponent(window.__MAPBOX_TOKEN)}&limit=1&language=fr&country=${encodeURIComponent(window.__MAPBOX_COUNTRIES || 'be,fr')}`;
+          try {
+            const res = await fetch(url);
+            const data = await res.json();
+            const feat = (data.features || [])[0];
+            if (feat && feat.center) {
+              const pos = { lng: Number(feat.center[0]), lat: Number(feat.center[1]) };
+              cache[q] = pos;
+              try { localStorage.setItem(cacheKey, JSON.stringify(cache)); } catch {}
+              return pos;
+            }
+          } catch {}
+          return null;
+        }
+
+        const fc = { type: 'FeatureCollection', features: [] };
+        const iconsToLoad = [];
+        for (const r of rides) {
+          const label = r.origin || r.destination || '';
+          if (!label) continue;
+          const pos = await geocode(label);
+          if (!pos) continue;
+          const color = r.color || colorFor(r.id);
+          let iconId = null;
+          if (r.icon_url) {
+            iconId = `ev-icon-${r.id}`;
+            iconsToLoad.push({ id: iconId, url: r.icon_url });
+          }
+          fc.features.push({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [pos.lng, pos.lat] },
+            properties: {
+              id: r.id,
+              title: r.title || 'Événement',
+              date: r.date || '',
+              time: r.time || '',
+              place: label,
+              color: color,
+              iconId: iconId
+            }
+          });
+          // small delay to avoid rate limit
+          await new Promise(r => setTimeout(r, 120));
+        }
+
+        map.on('load', async () => {
+          try {
+            map.addSource('club-events', { type: 'geojson', data: fc, cluster: true, clusterMaxZoom: 12, clusterRadius: 40 });
+            map.addLayer({ id: 'clusters', type: 'circle', source: 'club-events', filter: ['has','point_count'], paint: { 'circle-color': '#2563eb', 'circle-radius': ['step',['get','point_count'], 14, 10, 18, 30, 24], 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
+            map.addLayer({ id: 'cluster-count', type: 'symbol', source: 'club-events', filter: ['has','point_count'], layout: { 'text-field': ['get','point_count_abbreviated'], 'text-size': 12 }, paint: { 'text-color': '#fff' } });
+            // Load custom icons declared on events
+            for (const it of iconsToLoad) {
+              if (!it || !it.url || (map.hasImage && map.hasImage(it.id))) continue;
+              try {
+                const image = await new Promise((res) => { map.loadImage(it.url, (err, img) => res(err?null:img)); });
+                if (image) map.addImage(it.id, image);
+              } catch {}
+            }
+            // Try to load a fallback SDF car icon so we can tint per-event color when no custom icon
+            let usedSymbol = false;
+            try {
+              const svg = encodeURIComponent(`
+                <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
+                  <path fill='%23000000' d='M5 11l1.2-3.6C6.6 6.5 7.5 6 8.4 6h7.2c.9 0 1.8.5 2.2 1.4L19 11v5c0 .6-.4 1-1 1h-1a2 2 0 0 1-4 0H11a2 2 0 0 1-4 0H6c-.6 0-1-.4-1-1v-5zm2.4-3c-.2.1-.3.2-.4.4L6.4 10h11.2l-1-1.6c-.1-.2-.2-.3-.4-.4H7.4zM8 16.5c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1zm8 0c.6 0 1-.4 1-1s-.4-1-1-1-1 .4-1 1 .4 1 1 1z'/>
+                </svg>`);
+              const img = await new Promise((res) => {
+                map.loadImage(`data:image/svg+xml;charset=utf-8,${svg}`, (err, image) => { res(err ? null : image); });
+              });
+              if (img && !(map.hasImage && map.hasImage('car-sdf'))) {
+                map.addImage('car-sdf', img, { sdf: true });
+              }
+              if (map.hasImage && map.hasImage('car-sdf')) {
+                map.addLayer({
+                  id: 'unclustered',
+                  type: 'symbol',
+                  source: 'club-events',
+                  filter: ['!',['has','point_count']],
+                  layout: {
+                    'icon-image': ['coalesce', ['get','iconId'], 'car-sdf'],
+                    'icon-size': 1.0,
+                    'icon-allow-overlap': true
+                  },
+                  paint: {
+                    'icon-color': ['coalesce',['get','color'],'#2563eb']
+                  }
+                });
+                usedSymbol = true;
+              }
+            } catch {}
+            if (!usedSymbol) {
+              map.addLayer({ id: 'unclustered', type: 'circle', source: 'club-events', filter: ['!',['has','point_count']], paint: { 'circle-color': ['get','color'], 'circle-radius': 6, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
+            }
+
+            // Address labels for unclustered points (always visible)
+            try {
+              map.addLayer({
+                id: 'unclustered-labels',
+                type: 'symbol',
+                source: 'club-events',
+                filter: ['!',['has','point_count']],
+                layout: {
+                  'text-field': ['get', 'place'],
+                  'text-size': 11,
+                  'text-offset': [0, 1.2],
+                  'text-anchor': 'top',
+                  'text-allow-overlap': false
+                },
+                paint: {
+                  'text-color': ['coalesce',['get','color'],'#111827'],
+                  'text-halo-color': '#ffffff',
+                  'text-halo-width': 1
+                }
+              });
+            } catch {}
+
+            map.on('mouseenter','unclustered', () => { map.getCanvas().style.cursor = 'pointer'; });
+            map.on('mouseleave','unclustered', () => { map.getCanvas().style.cursor = ''; });
+            map.on('click','unclustered', (e) => {
+              const f = e.features && e.features[0];
+              if (!f) return;
+              const p = f.properties || {};
+              const gid = (new URLSearchParams(location.search)).get('id') || '';
+              const html = `<div><strong>${p.title || ''}</strong><div>${p.date || ''} ${p.time || ''}</div><div>${(p.place||'')}</div><div class='mt-8'><a class='btn btn-xs' href='/event-detail.html?clubId=${encodeURIComponent(gid)}&eventId=${encodeURIComponent(p.id)}'>Voir</a></div></div>`;
+              new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+            });
+
+            if (fc.features.length) {
+              const bounds = new mapboxgl.LngLatBounds();
+              fc.features.forEach(ft => bounds.extend(ft.geometry.coordinates));
+              try { map.fitBounds(bounds, { padding: 24, maxZoom: 11 }); } catch {}
+            } else { try { console.debug('Club map: no features to display'); } catch {} }
+          } catch {}
+        });
+        mapEl.dataset.inited = '1';
+      } catch {}
+    }
+
+    function memberCard(m, isOwnerView, groupId) {
+      const avatar = m.avatar_url
+        ? `<img src="${m.avatar_url}" alt="${m.display_name || ''}" class="avatar-28">`
+        : '<div class="avatar-28 avatar-placeholder"></div>';
+      const name = m.display_name || `${m.first_name || ''} ${m.last_name || ''}`.trim() || 'Membre';
+      let actions = '';
+      if (isOwnerView) {
+        const toggleTo = m.role === 'owner' ? 'member' : 'owner';
+        const label = m.role === 'owner' ? 'Retirer propriétaire' : 'Nommer propriétaire';
+        actions = `<button class="btn btn-xs" data-role="${toggleTo}" data-user="${m.id}" data-group="${groupId}">${label}</button>`;
+      }
+      return `
+        <div class="car-card items-center">
+          <div class="car-header">
+            <div class="row items-center gap-8">
+              ${avatar}
+              <div>${name}</div>
+            </div>
+            <div class="car-capacity ${m.role === 'owner' ? 'owner' : ''}">${m.role === 'owner' ? 'Propriétaire' : 'Membre'}</div>
+          </div>
+          <div class="mt-8">${actions}</div>
+        </div>
+      `;
+    }
+
+    async function loadGroupDetail(id) {
+      try {
+        const g = await fetchJSON(`/api/v1/groups/${id}`);
+        currentGroupId = g.id;
+        if (groupDetail) groupDetail.style.display = 'block';
+
+        const now = new Date();
+        const upcoming = [];
+        const past = [];
+        (g.rides || []).forEach(r => {
+          const dt = new Date(r.date + 'T' + (r.time || '00:00'));
+          (dt >= now ? upcoming : past).push(r);
+        });
+
+        const typeBadge = `<span class="car-capacity">${g.kind || g.type || 'Club'}</span>`;
+        const inviteUrl = g.invite_code ? `${location.origin}/clubs.html?invite=${encodeURIComponent(g.invite_code)}` : '';
+        const stats = buildStatsBlock(g, upcoming);
+        const isOwner = g.role === 'owner';
+        const membersTable = buildMembersTable(g);
+        const ridesTable = buildRidesTable(g);
+
+        groupDetail.innerHTML = `
+          <div class="club-summary">
+            <div class="top-row">
+              <div class="name">${g.name} ${g.kind ? `<span class=\"chip\">${g.kind}</span>` : ''}</div>
+              <div class="actions">
+                ${isOwner ? `<button id="editGroupBtn" class="btn btn-secondary btn-xs">Modifier</button>` : ''}
+                ${isOwner ? `<button id="deleteGroupBtn" class="btn btn-danger btn-xs">Supprimer</button>` : ''}
+                <button id="leaveGroupBtn" class="btn btn-secondary btn-xs">Quitter</button>
+              </div>
+            </div>
+            <div class="stats-strip">
+              <div class="stat"><div class="icon">📅</div><div class="num">${(g.rides || []).length}</div><div class="lbl">Événements</div></div>
+              <div class="stat"><div class="icon">⏳</div><div class="num">${upcoming.length}</div><div class="lbl">À venir</div></div>
+              <div class="stat"><div class="icon">👥</div><div class="num">${g.members_count != null ? g.members_count : (g.members ? g.members.length : '-')}</div><div class="lbl">Membres</div></div>
+            </div>
+          </div>
+
+          <div class="club-layout mt-16">
+            <div class="main-col">
+              <div class="card">
+                <h3>Événements</h3>
+                <div class="section-header-row">
+                  <div class="secondary">Gestion des événements du club</div>
+                  <a class="btn btn-xs" href="/event-create.html?clubId=${g.id}">Créer un événement</a>
+                </div>
+                <div id="eventsMap" class="mapbox events-map" style="margin:12px 0 8px"></div>
+                <h4>À venir</h4>
+                <div id="groupUpcoming">${upcoming.map(r => rideRow(r, g.id)).join('') || '<div class="secondary">Aucun événement à venir</div>'}</div>
+                ${past.length ? `<h4 class=\"mt-16\">Passés</h4><div id=\"groupPast\">${past.map(r => rideRow(r, g.id)).join('')}</div>` : ''}
+                <h4 class="mt-16">Détails</h4>
+                ${ridesTable}
+              </div>
+            </div>
+
+            <div class="secondary-col">
+              <div class="card">
+                <h3>Infos du club</h3>
+                <div class="form-grid">
+                  <div class="form-group"><label>ID</label><div>${g.id}</div></div>
+                  <div class="form-group"><label>Nom</label><div>${g.name}</div></div>
+                  <div class="form-group"><label>Description</label><div>${g.description || ''}</div></div>
+                  <div class="form-group"><label>Type</label><div>${g.kind || ''}</div></div>
+                  <div class="form-group"><label>Votre rôle</label><div>${g.role}</div></div>
+                  <div class="form-group"><label>Code d'invitation</label><div>${g.invite_code || '—'}</div></div>
+                  <div class="form-group"><label>Nombre de membres</label><div>${g.members_count != null ? g.members_count : (g.members ? g.members.length : '—')}</div></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3>Inviter des membres</h3>
+                ${buildInviteBox(g.invite_code)}
+                <div class="actions-row mt-8">
+                  <input id="addMemberEmail" type="email" placeholder="Email du membre" class="flex-1 min-w-220" />
+                  <button id="addMemberBtn" class="btn btn-xs">Ajouter</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3>Membres</h3>
+                <div id="groupMembers">${(g.members || []).slice().sort((a,b)=> (a.role==='owner'?-1:1)).map(m => memberCard(m, g.role === 'owner', g.id)).join('')}</div>
+                <h4 class="mt-16">Détails</h4>
+                ${membersTable}
+              </div>
+            </div>
+          </div>
+
+          <!-- Dialogs -->
+          <dialog id="addressDialog">
+            <form method="dialog" class="form">
+              <h3>Ouvrir l'adresse</h3>
+              <div id="addressDialogText" class="mt-8"></div>
+              <div class="btn-row mt-8">
+                <a id="addrGmaps" class="btn btn-xs" target="_blank" rel="noopener">Google Maps</a>
+                <a id="addrWaze" class="btn btn-xs btn-secondary" target="_blank" rel="noopener">Waze</a>
+                <button id="addrCopy" class="btn btn-xs" type="button">Copier</button>
+              </div>
+              <div class="nav modal-actions mt-8">
+                <button class="btn btn-secondary">Fermer</button>
+              </div>
+            </form>
+          </dialog>
+          <dialog id="editGroupDialog">
+            <form method="dialog" id="editGroupForm" class="form">
+              <h3>Modifier le club</h3>
+              <div class="form-group">
+                <label for="eg_name">Nom</label>
+                <input id="eg_name" value="${g.name}" required />
+              </div>
+              <div class="form-group">
+                <label for="eg_desc">Description</label>
+                <textarea id="eg_desc">${g.description || ''}</textarea>
+              </div>
+              <div class="nav modal-actions">
+                <button type="button" class="btn btn-secondary" id="editGroupCancel">Annuler</button>
+                <button class="btn" type="submit">Enregistrer</button>
+              </div>
+            </form>
+          </dialog>
+
+          <dialog id="addMemberDialog">
+            <form method="dialog" id="addMemberForm" class="form">
+              <h3>Ajouter un membre</h3>
+              <div class="form-group">
+                <label for="am_email">Email *</label>
+                <input id="am_email" type="email" placeholder="email@exemple.com" required />
+              </div>
+              <div class="nav modal-actions">
+                <button type="button" class="btn btn-secondary" id="addMemberCancel">Annuler</button>
+                <button class="btn" type="submit">Ajouter</button>
+              </div>
+            </form>
+          </dialog>
+
+          <dialog id="editEventDialog">
+            <form method="dialog" id="editEventForm" class="form">
+              <h3>Modifier l'événement</h3>
+              <div class="form-group">
+                <label for="ee_title">Titre *</label>
+                <input id="ee_title" required />
+              </div>
+              <div class="form-group">
+                <label for="ee_date">Date *</label>
+                <input id="ee_date" type="date" required />
+              </div>
+              <div class="form-group">
+                <label for="ee_time">Heure</label>
+                <input id="ee_time" type="time" />
+              </div>
+              <div class="form-group">
+                <label for="ee_dest">Destination *</label>
+                <input id="ee_dest" required />
+              </div>
+              <div class="form-group">
+                <label for="ee_desc">Description</label>
+                <textarea id="ee_desc"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="ee_color">Couleur</label>
+                <input id="ee_color" type="color" />
+              </div>
+              <div class="form-group">
+                <label for="ee_icon">Icône (URL)</label>
+                <input id="ee_icon" placeholder="https://.../icone.png" />
+              </div>
+              <div class="nav modal-actions">
+                <button type="button" class="btn btn-secondary" id="editEventCancel">Annuler</button>
+                <button class="btn" type="submit">Enregistrer</button>
+              </div>
+            </form>
+          </dialog>
+
+          <dialog id="deleteGroupDialog">
+            <form method="dialog" id="deleteGroupForm" class="form">
+              <h3>Supprimer le club</h3>
+              <p class="secondary">Tapez le nom du club pour confirmer&nbsp;: <strong>${g.name}</strong></p>
+              <div class="form-group">
+                <input id="dg_confirm" placeholder="Nom du club" />
+              </div>
+              <div class="nav modal-actions">
+                <button type="button" class="btn btn-secondary" id="deleteGroupCancel">Annuler</button>
+                <button class="btn btn-danger" type="submit">Supprimer</button>
+              </div>
+            </form>
+          </dialog>
+        `;
+
+        // Maps removed: no initialization or toggles
+        // Initialize the club events map with clustering (always visible)
+        try { await initClubEventsMap([...(g.rides||[])]); } catch {}
+
+        // Reveal CRUD buttons and bind handlers after render (outside of map init)
+        try {
+          let me = null;
+          try { me = await fetchJSON('/api/v1/me'); } catch {}
+          const canManage = (ride) => {
+            if (g && (g.role === 'owner' || g.role === 'admin')) return true;
+            const creatorId = ride.created_by_id || ride.creator_id || ride.user_id || ride.owner_id || ride.ownerId || ride.createdById || ride.author_id || ride.authorId || null;
+            const creatorEmail = ride.created_by_email || ride.creator_email || ride.user_email || ride.email || null;
+            if (!me) return false;
+            if (creatorId && String(me.id) === String(creatorId)) return true;
+            if (creatorEmail && me.email && String(me.email).toLowerCase() === String(creatorEmail).toLowerCase()) return true;
+            return false;
+          };
+          // Show buttons
+          [...(g.rides || [])].forEach(r => {
+            const editBtn = groupDetail.querySelector(`[data-edit-event="${r.id}"]`);
+            const delBtn = groupDetail.querySelector(`[data-del-event="${r.id}"]`);
+            if (canManage(r)) {
+              if (editBtn) { editBtn.style.display = ''; editBtn.classList.remove('hidden'); }
+              if (delBtn) { delBtn.style.display = ''; delBtn.classList.remove('hidden'); }
+            }
+          });
+          // Edit handlers
+          groupDetail.querySelectorAll('[data-edit-event]')?.forEach(btn => {
+            btn.addEventListener('click', () => {
+              const id = btn.getAttribute('data-edit-event');
+              const r = (g.rides || []).find(x => String(x.id) === String(id));
+              if (!r) return;
+              const d = document.getElementById('editEventDialog');
+              const f = document.getElementById('editEventForm');
+              if (!d || !f) return;
+              f.dataset.eventId = String(r.id);
+              document.getElementById('ee_title').value = r.title || '';
+              document.getElementById('ee_date').value = (r.date || '').slice(0,10);
+              document.getElementById('ee_time').value = r.time || '';
+              document.getElementById('ee_dest').value = r.destination || r.origin || '';
+              document.getElementById('ee_desc').value = r.note || '';
+              document.getElementById('ee_color').value = (r.color && /^#/.test(r.color)) ? r.color : (r.color ? r.color : '#2563eb');
+              document.getElementById('ee_icon').value = r.icon_url || '';
+              d.showModal();
+            });
+          });
+          // Edit submit
+          (function bindEditEventSubmit(){
+            const d = document.getElementById('editEventDialog');
+            const f = document.getElementById('editEventForm');
+            const cancel = document.getElementById('editEventCancel');
+            cancel?.addEventListener('click', () => d?.close());
+            f?.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const id = f.dataset.eventId;
+              if (!id) { d?.close(); return; }
+              const title = document.getElementById('ee_title').value.trim();
+              const date = document.getElementById('ee_date').value;
+              const time = document.getElementById('ee_time').value;
+              const destination = document.getElementById('ee_dest').value.trim();
+              const note = document.getElementById('ee_desc').value.trim();
+              const color = (document.getElementById('ee_color').value || '').trim();
+              const icon_url = (document.getElementById('ee_icon').value || '').trim();
+              if (!title || !date || !destination) { alert('Champs requis manquants'); return; }
+              const payload = { title, date, time, destination, note, color: color || undefined, icon_url: icon_url || undefined };
+              try {
+                await fetchJSON(`/api/v1/rides/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                d?.close();
+                showToast("Événement mis à jour");
+                await loadGroupDetail(g.id);
+              } catch (err) { showToast('Modification impossible', 'error'); }
+            }, { once: true });
+          })();
+          // Delete handlers
+          groupDetail.querySelectorAll('[data-del-event]')?.forEach(btn => {
+            btn.addEventListener('click', async () => {
+              const id = btn.getAttribute('data-del-event');
+              if (!id) return;
+              if (!confirm('Supprimer cet événement ?')) return;
+              try {
+                await fetchJSON(`/api/v1/rides/${id}`, { method: 'DELETE' });
+                showToast('Événement supprimé');
+                await loadGroupDetail(g.id);
+              } catch (e) { showToast('Suppression impossible', 'error'); }
+            });
+          });
+        } catch {}
+
+        // Bind leave button
+        document.getElementById('leaveGroupBtn')?.addEventListener('click', async () => {
+          if (!confirm('Quitter ce club ?')) return;
+          const btn = document.getElementById('leaveGroupBtn');
+          try {
+            setLoading(btn, true);
+            await fetchJSON(`/api/v1/groups/${g.id}/leave`, { method: 'DELETE' });
+            showToast('Vous avez quitté le club');
+            location.href = '/clubs.html';
+          } catch (err) {
+            const msg = (err && err.message) || '';
+            if (msg.includes('ONLY_OWNER_CANNOT_LEAVE')) {
+              showToast('Vous êtes le seul admin. Nommez un autre admin ou supprimez le club avant de quitter.', 'error');
+            } else if (msg.includes('NOT_MEMBER')) {
+              showToast('Vous ne faites plus partie de ce club.', 'error');
+              location.href = '/clubs.html';
+            } else {
+              showToast('Impossible de quitter le club', 'error');
+            }
+          } finally { setLoading(btn, false); }
+        });
+
+        document.getElementById('copyInviteLink')?.addEventListener('click', async () => {
+          try {
+            const el = document.getElementById('inviteLinkInput');
+            if (el && el.value) { await navigator.clipboard.writeText(el.value); showToast('Code copié'); }
+          } catch {}
+        });
+        // Removed 'Copier le lien' button
+
+        if (isOwner) {
+          const editBtn = document.getElementById('editGroupBtn');
+          const editDialog = document.getElementById('editGroupDialog');
+          const editForm = document.getElementById('editGroupForm');
+          const editCancel = document.getElementById('editGroupCancel');
+          editBtn?.addEventListener('click', () => editDialog?.showModal());
+          editCancel?.addEventListener('click', () => editDialog?.close());
+          editForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('eg_name').value.trim();
+            const description = document.getElementById('eg_desc').value.trim();
+            const submitBtn = editForm.querySelector('button[type="submit"]');
+            try {
+              setLoading(submitBtn, true);
+              await fetchJSON(`/api/v1/groups/${g.id}`, { method: 'PATCH', body: JSON.stringify({ name, description }) });
+              editDialog?.close();
+              showToast('Club mis à jour');
+              await loadGroupDetail(g.id);
+            } catch (err) { showToast(err.message || 'Modification impossible', 'error'); }
+            finally { setLoading(submitBtn, false); }
+          });
+
+          const delBtn = document.getElementById('deleteGroupBtn');
+          const delDialog = document.getElementById('deleteGroupDialog');
+          const delForm = document.getElementById('deleteGroupForm');
+          const delCancel = document.getElementById('deleteGroupCancel');
+          delBtn?.addEventListener('click', () => delDialog?.showModal());
+          delCancel?.addEventListener('click', () => delDialog?.close());
+          delForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const val = document.getElementById('dg_confirm').value.trim();
+            if (val !== g.name) { alert('Le nom ne correspond pas.'); return; }
+            const submitBtn = delForm.querySelector('button[type="submit"]');
+            try {
+              setLoading(submitBtn, true);
+              await fetchJSON(`/api/v1/groups/${g.id}`, { method: 'DELETE' });
+              delDialog?.close();
+              showToast('Club supprimé');
+              location.href = '/clubs.html';
+            } catch (err) { showToast(err.message || 'Suppression impossible', 'error'); }
+            finally { setLoading(submitBtn, false); }
+          });
+        }
+
+        const addBtn = document.getElementById('addMemberBtn');
+        const addDialog = document.getElementById('addMemberDialog');
+        const addForm = document.getElementById('addMemberForm');
+        const addCancel = document.getElementById('addMemberCancel');
+        addBtn?.addEventListener('click', () => addDialog?.showModal());
+        addCancel?.addEventListener('click', () => addDialog?.close());
+        addForm?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('am_email').value.trim();
+          if (!email) { alert('Entrez un email'); return; }
+          const submitBtn = addForm.querySelector('button[type="submit"]');
+          try {
+            setLoading(submitBtn, true);
+            await fetchJSON(`/api/v1/groups/${g.id}/members`, { method: 'POST', body: JSON.stringify({ email }) });
+            addDialog?.close();
+            showToast('Membre ajouté');
+            await loadGroupDetail(g.id);
+          } catch (err) { showToast(err.message || 'Ajout impossible', 'error'); }
+          finally { setLoading(submitBtn, false); }
+        });
+
+        document.querySelectorAll('#groupMembers [data-user]')?.forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const userId = btn.getAttribute('data-user');
+            const role = btn.getAttribute('data-role');
+            if (!confirm('Confirmer la modification du rôle ?')) return;
+            setLoading(btn, true);
+            try {
+              await fetchJSON(`/api/v1/groups/${g.id}/members/${userId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ role })
+              });
+              showToast('Rôle mis à jour');
+              await loadGroupDetail(g.id);
+            } catch (err) { showToast(err.message || 'Modification impossible', 'error'); }
+            finally { setLoading(btn, false); }
+          });
+        });
+      } catch (e) {
+        try {
+          const wrap = document.querySelector('.container');
+          if (wrap) {
+            wrap.innerHTML = `
+              <div class="card">
+                <h3>Groupe introuvable</h3>
+                <p class="secondary">Impossible de charger le club demandé.</p>
+                <div class="btn-row mt-8">
+                  <a class="btn btn-secondary" href="/clubs.html">← Revenir aux clubs</a>
+                </div>
+              </div>`;
+          }
+        } catch {}
+      }
+    }
+
+    if (groupIdParam) {
+      loadGroupDetail(groupIdParam);
+    } else {
+      location.href = '/clubs.html';
+    }
+  </script>
+  <!-- Edit Event Dialog -->
+  <dialog id="editEventDialog">
+    <form method="dialog" id="editEventForm" class="form">
+      <h3>Modifier l'événement</h3>
+      <div class="form-group"><label for="ee_title">Titre</label><input id="ee_title" required /></div>
+      <div class="form-group"><label for="ee_date">Date</label><input id="ee_date" type="date" required /></div>
+      <div class="form-group"><label for="ee_time">Heure</label><input id="ee_time" type="time" /></div>
+      <div class="form-group"><label for="ee_dest">Destination</label><input id="ee_dest" /></div>
+      <div class="form-group"><label for="ee_desc">Description</label><textarea id="ee_desc"></textarea></div>
+      <div class="nav modal-actions">
+        <button type="button" class="btn btn-secondary" id="editEventCancel">Annuler</button>
+        <button class="btn" type="submit">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+  <script>
+    // Handlers for edit event dialog submit/cancel
+    (function(){
+      const dlg = document.getElementById('editEventDialog');
+      const form = document.getElementById('editEventForm');
+      const cancel = document.getElementById('editEventCancel');
+      cancel?.addEventListener('click', () => dlg?.close());
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = form.dataset.eventId;
+        if (!id) return;
+        const title = document.getElementById('ee_title').value.trim();
+        const date = document.getElementById('ee_date').value;
+        const time = document.getElementById('ee_time').value;
+        const destination = document.getElementById('ee_dest').value.trim();
+        const note = document.getElementById('ee_desc').value.trim();
+        try {
+          const payload = { title, date, time, destination, note };
+          await (async function(url, options){
+            const headers = options.headers || {}; headers['X-User-Token'] = localStorage.getItem('userToken');
+            if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+            const res = await fetch(url, { ...options, headers }); if (!res.ok) throw new Error('HTTP ' + res.status);
+            try { return await res.json(); } catch { return null; }
+          })(`/api/v1/rides/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+          dlg?.close();
+          // reload list
+          (function(){ const params = new URLSearchParams(location.search); const gid = params.get('id'); if (gid) window.location.reload(); else window.location.reload(); })();
+        } catch (err) { alert('Modification impossible'); }
+      });
+    })();
+  </script>
+  <script>
+    // Ensure create event button routes with current club id
+    (function(){
+      const params = new URLSearchParams(location.search);
+      const gid = params.get('id');
+      const createBtn = document.getElementById('createEventBtn');
+      if (gid && createBtn) createBtn.href = `/event-create.html?clubId=${encodeURIComponent(gid)}`;
+    })();
+  </script>
+  <script src="/js/config.js"></script>
+</body>
+</html>

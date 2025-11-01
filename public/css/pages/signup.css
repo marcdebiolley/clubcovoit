@@ -1,0 +1,38 @@
+/* Page: signup */
+.page-signup .card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.page-signup .header p {
+  color: var(--secondary-light);
+}
+
+/* Responsive layout for signup rows */
+.page-signup .row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-signup .row .form-group {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.page-signup .form-group input {
+  width: 100%;
+}
+
+@media (max-width: 520px) {
+  .page-signup .row .form-group {
+    flex: 1 1 100%;
+  }
+}
+
+/* Utilities used by signup.html */
+.flex-1 { flex: 1 1 auto; }
+.min-w-220 { min-width: 220px; }
+.min-w-260 { min-width: 260px; }
+.mt-10 { margin-top: 10px; }

@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  date: 2025-10-14
+  time: MyString
+  origin: MyString
+  destination: MyString
+  seats_total: 1
+  seats_taken: 1
+  note: MyText
+  invite_code: MyString
+  password_salt: MyString
+  password_hash: MyString
+  user: one
+
+two:
+  title: MyString
+  date: 2025-10-14
+  time: MyString
+  origin: MyString
+  destination: MyString
+  seats_total: 1
+  seats_taken: 1
+  note: MyText
+  invite_code: MyString
+  password_salt: MyString
+  password_hash: MyString
+  user: two

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Navbar (Logged out vs Logged in)</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Navbar demo</h1>
+    <p>Comparaison des deux états: non connecté et connecté.</p>
+
+    <h2>Non connecté</h2>
+    <div id="nav-logged-out"></div>
+
+    <h2 class="mt-16">Connecté</h2>
+    <div id="nav-logged-in"></div>
+  </div>
+
+  <script>
+    function applyState(root, isLogged) {
+      var linkClubs = root.querySelector('.nav a[href="/clubs.html"]');
+      var linkProfile = root.querySelector('.nav a[href="/profile.html"]');
+      var btnLogout = root.querySelector('#logoutBtn');
+      var linkLogin = root.querySelector('#loginLink');
+      var mClubs = root.querySelector('#mobileMenu a[href="/clubs.html"]');
+      var mProfile = root.querySelector('#mobileMenu a[href="/profile.html"]');
+      var mLogin = root.querySelector('#loginLinkMobile');
+      var btnLogoutMobile = root.querySelector('#logoutBtnMobile');
+
+      if (isLogged) {
+        if (linkClubs) linkClubs.style.display = '';
+        if (linkProfile) linkProfile.style.display = '';
+        if (btnLogout) btnLogout.style.display = '';
+        if (linkLogin) linkLogin.style.display = 'none';
+        if (mClubs) mClubs.style.display = '';
+        if (mProfile) mProfile.style.display = '';
+        if (btnLogoutMobile) btnLogoutMobile.style.display = '';
+        if (mLogin) mLogin.style.display = 'none';
+      } else {
+        if (linkClubs) linkClubs.style.display = 'none';
+        if (linkProfile) linkProfile.style.display = 'none';
+        if (btnLogout) btnLogout.style.display = 'none';
+        if (linkLogin) linkLogin.style.display = '';
+        if (mClubs) mClubs.style.display = 'none';
+        if (mProfile) mProfile.style.display = 'none';
+        if (btnLogoutMobile) btnLogoutMobile.style.display = 'none';
+        if (mLogin) mLogin.style.display = '';
+      }
+    }
+
+    fetch('/navbar.html')
+      .then(function(r){ return r.text(); })
+      .then(function(html){
+        var out = document.getElementById('nav-logged-out');
+        var inn = document.getElementById('nav-logged-in');
+        var a = document.createElement('div');
+        a.innerHTML = html;
+        var b = document.createElement('div');
+        b.innerHTML = html;
+        applyState(a, false);
+        applyState(b, true);
+        out.appendChild(a);
+        inn.appendChild(b);
+      });
+  </script>
+</body>
+</html>

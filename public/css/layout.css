@@ -1,0 +1,56 @@
+/* Layout utilities */
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.header {
+  text-align: center;
+  margin: 20px 0 24px;
+}
+.header h1 {
+  margin: 0 0 6px;
+  font-size: var(--text-h1);
+  font-weight: var(--weight-semibold);
+}
+.header p {
+  color: var(--secondary-light);
+  font-size: var(--text-small);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.cars-list,
+#ridesList {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .cars-list,
+  #ridesList {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.alert {
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+.alert-warning {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-text);
+}
+
+/* Navbar and card styles moved to /css/components/navbar.css and /css/components/card.css */

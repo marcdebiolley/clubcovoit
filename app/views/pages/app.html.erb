@@ -1,0 +1,40 @@
+<% content_for :head do %>
+  <link rel="stylesheet" href="/css/pages/index.css" />
+<% end %>
+
+<div class="header">
+  <h1>🏟️ CovoiGroupe</h1>
+  <p>Covoiturage pour activités sportives et extra-sportives</p>
+</div>
+
+<div class="page-header">
+  <div class="nav"></div>
+</div>
+
+<div class="card">
+  <h2>Mes groupes</h2>
+  <div id="groupsListHome"></div>
+</div>
+
+<div class="card">
+  <h2>Mes prochains trajets</h2>
+  <div class="stats">
+    <div>
+      <h3 style="margin-top:0;">Comme conducteur</h3>
+      <div id="asDriverList"></div>
+    </div>
+    <div>
+      <h3 style="margin-top:0;">Comme passager</h3>
+      <div id="asPassengerList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Vos covoiturages d'activités</h2>
+  <div id="ridesList"></div>
+</div>
+
+<% content_for :scripts do %>
+  <script src="/js/list.js"></script>
+<% end %>

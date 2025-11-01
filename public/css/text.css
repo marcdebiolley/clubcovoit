@@ -1,0 +1,70 @@
+:root {
+  --primary: #ff385c;
+  --primary-dark: #e61e4d;
+  --primary-darker: #d70466;
+  --secondary: #222222;
+  --secondary-light: #717171;
+  --secondary-lighter: #b0b0b0;
+  --background: #ffffff;
+  --surface: #f7f7f7;
+  --surface-border: #ebebeb;
+  --border: #dddddd;
+  --success-bg: #f0f9f4;
+  --success-text: #1a5f3a;
+  --success-border: #c3e6cb;
+  --info-bg: #f0f4f9;
+  --info-text: #0c5460;
+  --info-border: #bee5eb;
+  --warning-bg: #fff9f0;
+  --warning-text: #856404;
+  --warning-border: #ffe5b4;
+  --text-hero: 48px;
+  --text-h1: 26px;
+  --text-h2: 22px;
+  --text-h3: 18px;
+  --text-body: 16px;
+  --text-small: 14px;
+  --text-tiny: 12px;
+  --weight-light: 300;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  /* Radius */
+  --radius-small: 6px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+  --radius-full: 50%;
+  /* Border width */
+  --border-thin: 1px;
+  --border-thick: 2px;
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 20px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  /* Gaps */
+  --gap-small: 12px;
+  --gap-medium: 16px;
+  --gap-large: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  background: var(--background);
+  color: var(--secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}

@@ -1,0 +1,9 @@
+# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+
+User-agent: *
+Allow: /
+
+# Disallow admin or API paths if publicly accessible
+Disallow: /api/
+
+Sitemap: https://clubcovoit.fr/sitemap.xml

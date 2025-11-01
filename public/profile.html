@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon profil</title>
+  <link rel="stylesheet" href="/css/text.css?v=4" />
+  <link rel="stylesheet" href="/css/buttons.css?v=4" />
+  <link rel="stylesheet" href="/css/forms.css?v=4" />
+  <link rel="stylesheet" href="/css/layout.css?v=4" />
+  <link rel="stylesheet" href="/css/pages/profile.css?v=4" />
+  <link rel="stylesheet" href="/css/style.css?v=4" />
+</head>
+<body class="page-profile">
+  <div id="app-navbar"></div>
+  <div class="container">
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <img id="avatarPreview" alt="Avatar" class="avatar-round-cover" />
+      </div>
+      <div class="btn-row justify-center mt-10">
+        <label class="btn btn-secondary" for="avatar_file">Téléverser une image</label>
+        <input id="avatar_file" type="file" accept="image/*" class="hidden" />
+      </div>
+      <h1>Mon profil</h1>
+      <div class="profile-subtitle">Gérez vos informations personnelles</div>
+      <div class="btn-row justify-center">
+        <a class="btn btn-secondary" href="/index.html">← Activités</a>
+        <button id="logoutBtn" class="btn">Se déconnecter</button>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" type="button">Infos</button>
+      <button class="tab" type="button">Clubs</button>
+      <button class="tab" type="button">Stats</button>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="form-section stats-section" data-section="stats">
+      <h2>Vos statistiques</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number" id="statTrips">—</div>
+          <div class="stat-label">Trajets effectués</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statClubs">—</div>
+          <div class="stat-label">Clubs actifs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statDriverTimes">—</div>
+          <div class="stat-label">Fois conducteur</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="statKm">—</div>
+          <div class="stat-label">km économisés</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile info sections in two columns -->
+    <div class="info-grid">
+    <div class="form-section" data-section="info">
+      <h2>Informations personnelles</h2>
+      <form id="profileForm">
+        <div class="form-grid" id="personalFormGrid">
+          <div class="form-group">
+            <label for="display_name">Pseudo</label>
+            <input id="display_name" placeholder="Ex: Noah the beast" />
+          </div>
+          <div class="form-group">
+            <label for="first_name">Prénom</label>
+            <input id="first_name" placeholder="Ex: Noah" />
+          </div>
+          <div class="form-group">
+            <label for="last_name">Nom</label>
+            <input id="last_name" placeholder="Ex: Dupont" />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="marco.dupont@email.com" />
+          </div>
+          <div class="form-group">
+            <label for="telephone">Téléphone</label>
+            <input id="telephone" type="tel" placeholder="+32 123 45 67 89" />
+          </div>
+          <div class="form-group">
+            <label for="car_type">Type de voiture</label>
+            <input id="car_type" placeholder="Ex: Tesla Model S" />
+          </div>
+          <div class="form-group">
+            <label for="seats_available">Nombre de places disponibles</label>
+            <select id="seats_available">
+              <option value="">Sélectionner...</option>
+              <option value="1">1 place</option>
+              <option value="2">2 places</option>
+              <option value="3">3 places</option>
+              <option value="4">4 places</option>
+              <option value="5">5 places</option>
+              <option value="6">6 places et +</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="avatar_url">Image (URL)</label>
+            <input id="avatar_url" placeholder="https://..." />
+          </div>
+        </div>
+        <button class="btn btn-save" type="submit">Enregistrer les modifications</button>
+      </form>
+    </div>
+    </div>
+
+    <!-- Clubs Section -->
+    <div class="form-section">
+      <h2>Mes clubs</h2>
+      <div id="groupsListProfile" class="clubs-grid"></div>
+      <h2 class="mt-16">Mes prochains trajets</h2>
+      <div id="myUpcomingProfile" class="clubs-grid"></div>
+    </div>
+
+    
+  </div>
+  <script src="/js/header.js"></script>
+  <script src="/js/profile.js"></script>
+</body>
+</html>

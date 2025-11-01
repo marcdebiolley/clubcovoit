@@ -1,0 +1,7 @@
+/* Page: index (liste des activités) */
+.page-home .header h1 {
+  font-size: var(--text-h1);
+}
+.page-home #ridesList {
+  margin-top: var(--space-sm);
+}

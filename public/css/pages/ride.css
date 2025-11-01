@@ -1,0 +1,62 @@
+/* Page: ride (détails activité) */
+.page-ride #rideCard h2 {
+  font-size: var(--text-h2);
+}
+.page-ride .participant-form {
+  margin-top: var(--space-md);
+}
+.page-ride .passengers-list {
+  margin-top: var(--space-sm);
+}
+
+/* Utilities used on ride pages */
+.hidden {
+  display: none;
+}
+.row {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.gap-12 {
+  gap: 12px;
+}
+.gap-6 {
+  gap: 6px;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}
+.mt-8 {
+  margin-top: 8px;
+}
+.ml-8 {
+  margin-left: 8px;
+}
+.btn-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+.muted-line {
+  font-size: 13px;
+  color: #555;
+}
+
+/* Map container */
+.map-container {
+  height: 360px;
+  border-radius: var(--radius-large);
+}
+
+/* Popup for car markers */
+.popup-box {
+  min-width: 200px;
+}
+.popup-title {
+  font-weight: 600;
+}
+.popup-seats {
+  margin: 6px 0;
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Détails du covoiturage</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/pages/ride.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.css"
+    type="text/css"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.min.js"></script>
+</head>
+<body class="page-ride">
+  <div id="app-navbar"></div>
+  <div class="container">
+    <div class="header">
+      <h1>🚗 Détails du covoiturage</h1>
+      <p>Informations et participation</p>
+    </div>
+
+    <div class="page-header">
+      <div class="nav">
+        <a class="btn" href="/index.html">← Retour</a>
+      </div>
+    </div>
+
+    <div class="card" id="rideCard">
+      <h2 id="rideTitle"></h2>
+      <div><strong>📅</strong> <span id="rideDate"></span></div>
+      <div><strong>📍</strong> <span id="rideRoute"></span></div>
+      <div><strong>ℹ️</strong> <span id="rideNote"></span></div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-number" id="statDrivers">0</div>
+          <div class="stat-label">Conducteurs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statPassengers">0</div>
+          <div class="stat-label">Passagers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statSeats">0</div>
+          <div class="stat-label">Places réservées</div>
+        </div>
+      </div>
+
+      <h3>🚘 Conducteurs</h3>
+      <ul id="driversList" class="passengers-list"></ul>
+
+      <h3>👥 Passagers</h3>
+      <ul id="passengersList" class="passengers-list"></ul>
+
+      <div class="participant-form">
+        <h3>Rejoindre</h3>
+        <form id="participantForm">
+          <div class="form-group">
+            <label for="pname">Votre nom *</label>
+            <input id="pname" required />
+          </div>
+          <div class="form-group">
+            <label>Vous êtes *</label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="prole" value="driver" required /> Conducteur</label>
+              <label class="radio-option"><input type="radio" name="prole" value="passenger" required /> Passager</label>
+            </div>
+          </div>
+          <div class="form-group hidden" id="carChoiceBox">
+            <label for="pcar">Choisir une voiture (optionnel)</label>
+            <select id="pcar">
+              <option value="">— En attendre d'affectation —</option>
+            </select>
+          </div>
+          <div class="form-group hidden" id="seatsOfferedBox">
+            <label for="pseats">Places offertes</label>
+            <select id="pseats">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </div>
+          <button class="btn" type="submit">✅ Je participe</button>
+        </form>
+      </div>
+
+      <button id="deleteRideBtn" class="btn btn-danger btn-small">🗑️ Supprimer ce covoiturage</button>
+    </div>
+
+    <div class="card">
+      <h3>🚗 Ajouter une voiture</h3>
+      <form id="carForm">
+        <div class="form-group">
+          <label for="car_name">Nom de la voiture</label>
+          <input id="car_name" placeholder="Ex: Voiture Julien" />
+        </div>
+        <div class="form-group">
+          <label for="car_origin">Lieu de départ</label>
+          <input id="car_origin" placeholder="Ex: Parc sportif" />
+        </div>
+        <div class="form-group">
+          <label for="car_address">Adresse de rendez-vous (pour la carte)</label>
+          <div id="carAddressGeocoder"></div>
+          <input id="car_address" placeholder="Ex: 12 Rue du Stade, 4000 Liège" />
+          <input id="car_lat" type="hidden" />
+          <input id="car_lng" type="hidden" />
+        </div>
+        <div class="form-group">
+          <label>Détails de l'adresse</label>
+          <div class="row gap-12">
+            <input id="car_number" placeholder="Numéro" style="max-width:120px" />
+            <input id="car_street" placeholder="Rue" class="flex-1" />
+          </div>
+          <div class="row gap-12 mt-8">
+            <input id="car_postcode" placeholder="Code postal" style="max-width:160px" />
+            <input id="car_city" placeholder="Ville" class="flex-1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="car_time">Heure de départ</label>
+          <input id="car_time" type="time" />
+        </div>
+        <div class="form-group">
+          <label for="car_seats">Places totales</label>
+          <input id="car_seats" type="number" min="1" max="99" value="4" />
+        </div>
+        <div class="form-group">
+          <label for="car_driver">Conducteur (nom)</label>
+          <input id="car_driver" placeholder="Ex: Julien" />
+        </div>
+        <button class="btn" type="submit">➕ Ajouter la voiture</button>
+      </form>
+    </div>
+
+   <div class="voiture_dispo_list">
+    <div class="card">
+      <h3>🚘 Voitures de l'activité</h3>
+      <div id="carsContainer" class="cars-list"></div>
+    </div>
+     <div class="card">
+      <h3>🗺️ Carte des points de départ</h3>
+      <div class="row gap-12 items-center mb-8">
+        <label class="row gap-6 items-center">
+          <input type="checkbox" id="toggleShowAllCars" />
+          <span>Afficher toutes les voitures (y compris complètes)</span>
+        </label>
+      </div>
+      <div id="map" class="map-container"></div>
+    </div>
+  </div>
+
+    <div class="card hidden" id="waitingCard">
+      <h3>⏳ En attente d'affectation</h3>
+      <ul id="waitingList" class="passengers-list"></ul>
+    </div>
+  </div>
+  <script src="/js/header.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/ride.js"></script>
+</body>
+</html>
