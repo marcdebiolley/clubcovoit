@@ -6,6 +6,6 @@ class CreateMemberships < ActiveRecord::Migration[8.0]
       t.string :role, null: false, default: 'member' # owner, admin, member
       t.timestamps
     end
-    add_index :memberships, [ :group_id, :user_id ], unique: true
+    add_index :memberships, %i[group_id user_id], unique: true
   end
 end

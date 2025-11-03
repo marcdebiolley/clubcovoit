@@ -1,9 +1,7 @@
 class PagesController < ActionController::Base
-  layout "application"
+  layout 'application'
 
-  def home
-  end
+  def home; end
 
-  def app
-  end
+  def app; end
 end
