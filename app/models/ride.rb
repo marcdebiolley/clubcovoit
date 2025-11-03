@@ -15,6 +15,7 @@ class Ride < ApplicationRecord
   # Password protection for the ride using BCrypt
   def set_password(password)
     return if password.blank?
+
     self.password_hash = BCrypt::Password.create(password)
   end
 
@@ -25,8 +26,9 @@ class Ride < ApplicationRecord
   def verify_password(password)
     return true unless protected?
     return false if password.blank?
+
     BCrypt::Password.new(password_hash) == password
-  rescue
+  rescue StandardError
     false
   end
 end

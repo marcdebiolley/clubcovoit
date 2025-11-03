@@ -5,6 +5,7 @@ class Api::V1::ParticipantsController < ApplicationController
   # POST /api/v1/rides/:ride_id/participants
   def create
     return require_ride_access!(@ride) if @ride.protected? && !verify_ride_token(@ride.id)
+
     name = params[:name].to_s.strip
     role = params[:role].to_s
     seats_offered = params[:seats_offered].to_i
@@ -12,15 +13,15 @@ class Api::V1::ParticipantsController < ApplicationController
     if name.blank? || !%w[driver passenger].include?(role)
       return render json: { error: 'Missing required fields' }, status: :bad_request
     end
+
     # Capacity guard for passengers assigned directly to a car
     if role == 'passenger' && car_id.present?
       car = @ride.cars.find_by(id: car_id)
       return render json: { error: 'CAR_NOT_FOUND' }, status: :not_found unless car
-      if car.capacity_left <= 0
-        return render json: { error: 'CAR_FULL' }, status: :unprocessable_entity
-      end
+      return render json: { error: 'CAR_FULL' }, status: :unprocessable_entity if car.capacity_left <= 0
     end
-    p = @ride.participants.build(name: name, role: role, seats_offered: (role == 'driver' ? seats_offered : 0), car_id: car_id)
+    p = @ride.participants.build(name: name, role: role, seats_offered: (role == 'driver' ? seats_offered : 0),
+                                 car_id: car_id)
     p.save!
     update_capacities!(@ride, p.car_id)
     render json: { id: p.id }, status: :created
@@ -32,10 +33,10 @@ class Api::V1::ParticipantsController < ApplicationController
   def destroy
     p = Participant.find_by(id: params[:id])
     return render json: { error: 'Not found' }, status: :not_found unless p
+
     ride = p.ride
-    if ride.protected? && !verify_ride_token(ride.id)
-      return require_ride_access!(ride)
-    end
+    return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
+
     p.destroy!
     update_capacities!(ride, p.car_id)
     render json: { ok: true }
@@ -45,10 +46,10 @@ class Api::V1::ParticipantsController < ApplicationController
   def update
     p = Participant.find_by(id: params[:id])
     return render json: { error: 'Not found' }, status: :not_found unless p
+
     ride = p.ride
-    if ride.protected? && !verify_ride_token(ride.id)
-      return require_ride_access!(ride)
-    end
+    return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
+
     old_car_id = p.car_id
     # Capacity guard when assigning to a car
     if params.key?(:car_id)
@@ -76,15 +77,13 @@ class Api::V1::ParticipantsController < ApplicationController
 
   def update_capacities!(ride, car_id)
     # Recompute ride seats_taken and car seats_taken if provided
-    if car_id.present?
-      if (car = Car.find_by(id: car_id))
-        car.recalc_seats_taken!
-      end
+    if car_id.present? && (car = Car.find_by(id: car_id))
+      car.recalc_seats_taken!
     end
     ride.update!(seats_taken: ride.participants.where(role: 'passenger').count)
   end
 
-  def require_ride_access!(ride)
+  def require_ride_access!(_ride)
     render json: { error: 'UNAUTHORIZED' }, status: :unauthorized
   end
 

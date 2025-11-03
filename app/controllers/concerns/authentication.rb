@@ -11,7 +11,7 @@ module Authentication
 
   def decode_token(token)
     JWT.decode(token, jwt_secret, true, { algorithm: 'HS256' }).first
-  rescue
+  rescue StandardError
     nil
   end
 
@@ -20,8 +20,10 @@ module Authentication
     @current_user ||= begin
       token = request.headers['X-User-Token']
       return nil if token.blank?
+
       payload = decode_token(token)
       return nil unless payload && payload['user_id']
+
       User.find_by(id: payload['user_id'])
     end
   end
@@ -39,9 +41,11 @@ module Authentication
     auth = request.headers['Authorization'].to_s
     token = auth.start_with?('Bearer ') ? auth.split(' ', 2).last : nil
     return false if token.blank?
+
     payload = decode_token(token)
     return false unless payload && payload['ride_id'].to_s == ride_id.to_s
     return false if payload['exp'] && Time.now.to_i > payload['exp'].to_i
+
     true
   end
 end

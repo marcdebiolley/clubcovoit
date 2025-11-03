@@ -1,6 +1,6 @@
 class Api::V1::GroupsController < ApplicationController
   before_action :require_user!
-  before_action :set_group, only: [:show, :update, :destroy, :leave, :update_member_role, :add_member]
+  before_action :set_group, only: %i[show update destroy leave update_member_role add_member]
 
   # GET /api/v1/groups
   # Returns groups where current_user is member
@@ -45,11 +45,14 @@ class Api::V1::GroupsController < ApplicationController
   def update_member_role
     requester = @group.memberships.find_by(user_id: current_user.id)
     return render json: { error: 'FORBIDDEN' }, status: :forbidden unless requester&.role == 'owner'
+
     target_user_id = params[:user_id].to_i
     membership = @group.memberships.find_by(user_id: target_user_id)
     return render json: { error: 'NOT_MEMBER' }, status: :not_found unless membership
+
     role = params[:role].to_s
     return render json: { error: 'INVALID_ROLE' }, status: :bad_request unless %w[owner member].include?(role)
+
     # Do not allow demoting the last remaining owner
     if membership.role == 'owner' && role == 'member'
       owners_count = @group.memberships.where(role: 'owner').count
@@ -78,8 +81,10 @@ class Api::V1::GroupsController < ApplicationController
   def join
     code = params[:invite_code].to_s.strip
     return render json: { error: 'CODE_REQUIRED' }, status: :bad_request if code.blank?
+
     group = Group.find_by(invite_code: code)
     return render json: { error: 'NOT_FOUND' }, status: :not_found unless group
+
     Membership.find_or_create_by!(group: group, user: current_user) do |m|
       m.role = 'member'
     end
@@ -90,10 +95,19 @@ class Api::V1::GroupsController < ApplicationController
   def show
     membership = @group.memberships.find_by(user_id: current_user.id)
     return render json: { error: 'FORBIDDEN' }, status: :forbidden unless membership
+
     rides_scope = Ride.where(group_id: @group.id).order(date: :asc, time: :asc)
     rides = rides_scope.map do |r|
-      drivers_count = r.participants.where(role: 'driver').count rescue nil
-      passengers_count = r.participants.where(role: 'passenger').count rescue nil
+      drivers_count = begin
+        r.participants.where(role: 'driver').count
+      rescue StandardError
+        nil
+      end
+      passengers_count = begin
+        r.participants.where(role: 'passenger').count
+      rescue StandardError
+        nil
+      end
       {
         id: r.id,
         title: r.title,
@@ -134,6 +148,7 @@ class Api::V1::GroupsController < ApplicationController
   def destroy
     membership = @group.memberships.find_by(user_id: current_user.id)
     return render json: { error: 'FORBIDDEN' }, status: :forbidden unless membership&.role == 'owner'
+
     @group.destroy!
     render json: { ok: true }
   end
@@ -142,17 +157,18 @@ class Api::V1::GroupsController < ApplicationController
   def leave
     membership = @group.memberships.find_by(user_id: current_user.id)
     return render json: { error: 'NOT_MEMBER' }, status: :not_found unless membership
+
     if membership.role == 'owner'
       # Owner leaving: ensure another owner remains. If possible, transfer to oldest other member.
       others = @group.memberships.where.not(id: membership.id).order(:created_at)
-      if others.exists?
-        eldest = others.first
-        eldest.update!(role: 'owner') unless eldest.role == 'owner'
-        membership.destroy!
-      else
-        # Only member is the owner -> cannot leave without deleting group
-        return render json: { error: 'ONLY_OWNER_CANNOT_LEAVE' }, status: :unprocessable_entity
-      end
+      return render json: { error: 'ONLY_OWNER_CANNOT_LEAVE' }, status: :unprocessable_entity unless others.exists?
+
+      eldest = others.first
+      eldest.update!(role: 'owner') unless eldest.role == 'owner'
+      membership.destroy!
+
+    # Only member is the owner -> cannot leave without deleting group
+
     else
       membership.destroy!
     end

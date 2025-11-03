@@ -2,7 +2,7 @@ class ClubsController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :require_login
-  before_action :set_group, only: [:show, :members, :stats]
+  before_action :set_group, only: %i[show members stats]
 
   def index
     redirect_to '/clubs.html'
@@ -51,4 +51,3 @@ class ClubsController < ActionController::Base
     render plain: 'Club introuvable', status: :not_found unless @group
   end
 end
-
