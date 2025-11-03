@@ -49,3 +49,7 @@ end
 gem "bcrypt", "~> 3.1"
 gem "jwt", "~> 3.1"
 gem "rack-cors", "~> 3.0"
+
+gem "rubocop", "~> 1.81", groups: [ :development, :test ]
+gem "rubocop-rails", "~> 2.33", groups: [ :development, :test ]
+gem "rubocop-performance", "~> 1.26", groups: [ :development, :test ]

@@ -11,7 +11,7 @@ class Api::V1::MeController < ApplicationController
     if current_user.update(me_params)
       render json: current_user.slice(:id, :email, :display_name, :first_name, :last_name, :car_type, :avatar_url, :seats_available, :telephone)
     else
-      render json: { error: 'VALIDATION_ERROR', details: current_user.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "VALIDATION_ERROR", details: current_user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

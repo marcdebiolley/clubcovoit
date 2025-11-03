@@ -1,6 +1,6 @@
 class Api::V1::GroupsController < ApplicationController
   before_action :require_user!
-  before_action :set_group, only: [:show, :update, :destroy, :leave, :update_member_role, :add_member]
+  before_action :set_group, only: [ :show, :update, :destroy, :leave, :update_member_role, :add_member ]
 
   # GET /api/v1/groups
   # Returns groups where current_user is member
@@ -16,7 +16,7 @@ class Api::V1::GroupsController < ApplicationController
         role: role,
         members_count: g.memberships.size,
         events_count: (defined?(Ride) ? Ride.where(group_id: g.id).count : nil),
-        invite_code: (role == 'owner' ? g.invite_code : nil)
+        invite_code: (role == "owner" ? g.invite_code : nil)
       }
     }
   end
@@ -24,7 +24,7 @@ class Api::V1::GroupsController < ApplicationController
   # PATCH /api/v1/groups/:id { name, description, kind }
   def update
     membership = @group.memberships.find_by(user_id: current_user.id)
-    return render json: { error: 'FORBIDDEN' }, status: :forbidden unless membership&.role == 'owner'
+    return render json: { error: "FORBIDDEN" }, status: :forbidden unless membership&.role == "owner"
 
     permitted = {}
     permitted[:name] = params[:name].to_s.strip if params.key?(:name)
@@ -32,28 +32,28 @@ class Api::V1::GroupsController < ApplicationController
     permitted[:kind] = params[:kind].presence if params.key?(:kind)
 
     if permitted[:name].present? && permitted[:name].length < 2
-      return render json: { error: 'NAME_TOO_SHORT' }, status: :unprocessable_entity
+      return render json: { error: "NAME_TOO_SHORT" }, status: :unprocessable_entity
     end
 
     @group.update!(permitted)
     render json: { ok: true }
   rescue ActiveRecord::RecordInvalid => e
-    render json: { error: 'VALIDATION_ERROR', details: e.record.errors.full_messages }, status: :unprocessable_entity
+    render json: { error: "VALIDATION_ERROR", details: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   # PATCH /api/v1/groups/:id/members/:user_id { role: 'owner' | 'member' }
   def update_member_role
     requester = @group.memberships.find_by(user_id: current_user.id)
-    return render json: { error: 'FORBIDDEN' }, status: :forbidden unless requester&.role == 'owner'
+    return render json: { error: "FORBIDDEN" }, status: :forbidden unless requester&.role == "owner"
     target_user_id = params[:user_id].to_i
     membership = @group.memberships.find_by(user_id: target_user_id)
-    return render json: { error: 'NOT_MEMBER' }, status: :not_found unless membership
+    return render json: { error: "NOT_MEMBER" }, status: :not_found unless membership
     role = params[:role].to_s
-    return render json: { error: 'INVALID_ROLE' }, status: :bad_request unless %w[owner member].include?(role)
+    return render json: { error: "INVALID_ROLE" }, status: :bad_request unless %w[owner member].include?(role)
     # Do not allow demoting the last remaining owner
-    if membership.role == 'owner' && role == 'member'
-      owners_count = @group.memberships.where(role: 'owner').count
-      return render json: { error: 'LAST_OWNER_REQUIRED' }, status: :unprocessable_entity if owners_count <= 1
+    if membership.role == "owner" && role == "member"
+      owners_count = @group.memberships.where(role: "owner").count
+      return render json: { error: "LAST_OWNER_REQUIRED" }, status: :unprocessable_entity if owners_count <= 1
     end
     membership.update!(role: role)
     render json: { ok: true }
@@ -64,24 +64,24 @@ class Api::V1::GroupsController < ApplicationController
     name = params[:name].to_s.strip
     description = params[:description].to_s
     kind = params[:kind].presence
-    return render json: { error: 'NAME_REQUIRED' }, status: :bad_request if name.blank?
+    return render json: { error: "NAME_REQUIRED" }, status: :bad_request if name.blank?
 
     group = Group.new(user: current_user, name: name, description: description, kind: kind)
     group.save!
-    Membership.create!(group: group, user: current_user, role: 'owner')
+    Membership.create!(group: group, user: current_user, role: "owner")
     render json: { id: group.id, invite_code: group.invite_code }, status: :created
   rescue ActiveRecord::RecordInvalid => e
-    render json: { error: 'VALIDATION_ERROR', details: e.record.errors.full_messages }, status: :unprocessable_entity
+    render json: { error: "VALIDATION_ERROR", details: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   # POST /api/v1/groups/join { invite_code }
   def join
     code = params[:invite_code].to_s.strip
-    return render json: { error: 'CODE_REQUIRED' }, status: :bad_request if code.blank?
+    return render json: { error: "CODE_REQUIRED" }, status: :bad_request if code.blank?
     group = Group.find_by(invite_code: code)
-    return render json: { error: 'NOT_FOUND' }, status: :not_found unless group
+    return render json: { error: "NOT_FOUND" }, status: :not_found unless group
     Membership.find_or_create_by!(group: group, user: current_user) do |m|
-      m.role = 'member'
+      m.role = "member"
     end
     render json: { ok: true, id: group.id }
   end
@@ -89,11 +89,11 @@ class Api::V1::GroupsController < ApplicationController
   # GET /api/v1/groups/:id
   def show
     membership = @group.memberships.find_by(user_id: current_user.id)
-    return render json: { error: 'FORBIDDEN' }, status: :forbidden unless membership
+    return render json: { error: "FORBIDDEN" }, status: :forbidden unless membership
     rides_scope = Ride.where(group_id: @group.id).order(date: :asc, time: :asc)
     rides = rides_scope.map do |r|
-      drivers_count = r.participants.where(role: 'driver').count rescue nil
-      passengers_count = r.participants.where(role: 'passenger').count rescue nil
+      drivers_count = r.participants.where(role: "driver").count rescue nil
+      passengers_count = r.participants.where(role: "passenger").count rescue nil
       {
         id: r.id,
         title: r.title,
@@ -122,7 +122,7 @@ class Api::V1::GroupsController < ApplicationController
       name: @group.name,
       description: @group.description,
       kind: @group.kind,
-      invite_code: (membership.role == 'owner' ? @group.invite_code : nil),
+      invite_code: (membership.role == "owner" ? @group.invite_code : nil),
       role: membership.role,
       members_count: @group.memberships.size,
       members: members,
@@ -133,7 +133,7 @@ class Api::V1::GroupsController < ApplicationController
   # DELETE /api/v1/groups/:id
   def destroy
     membership = @group.memberships.find_by(user_id: current_user.id)
-    return render json: { error: 'FORBIDDEN' }, status: :forbidden unless membership&.role == 'owner'
+    return render json: { error: "FORBIDDEN" }, status: :forbidden unless membership&.role == "owner"
     @group.destroy!
     render json: { ok: true }
   end
@@ -141,17 +141,17 @@ class Api::V1::GroupsController < ApplicationController
   # DELETE /api/v1/groups/:id/leave
   def leave
     membership = @group.memberships.find_by(user_id: current_user.id)
-    return render json: { error: 'NOT_MEMBER' }, status: :not_found unless membership
-    if membership.role == 'owner'
+    return render json: { error: "NOT_MEMBER" }, status: :not_found unless membership
+    if membership.role == "owner"
       # Owner leaving: ensure another owner remains. If possible, transfer to oldest other member.
       others = @group.memberships.where.not(id: membership.id).order(:created_at)
       if others.exists?
         eldest = others.first
-        eldest.update!(role: 'owner') unless eldest.role == 'owner'
+        eldest.update!(role: "owner") unless eldest.role == "owner"
         membership.destroy!
       else
         # Only member is the owner -> cannot leave without deleting group
-        return render json: { error: 'ONLY_OWNER_CANNOT_LEAVE' }, status: :unprocessable_entity
+        return render json: { error: "ONLY_OWNER_CANNOT_LEAVE" }, status: :unprocessable_entity
       end
     else
       membership.destroy!
@@ -162,15 +162,15 @@ class Api::V1::GroupsController < ApplicationController
   # POST /api/v1/groups/:id/members { email }
   def add_member
     membership = @group.memberships.find_by(user_id: current_user.id)
-    return render json: { error: 'FORBIDDEN' }, status: :forbidden unless membership
+    return render json: { error: "FORBIDDEN" }, status: :forbidden unless membership
 
     email = params[:email].to_s.strip.downcase
-    return render json: { error: 'EMAIL_REQUIRED' }, status: :bad_request if email.blank?
+    return render json: { error: "EMAIL_REQUIRED" }, status: :bad_request if email.blank?
 
     user = User.find_by(email: email)
-    return render json: { error: 'USER_NOT_FOUND' }, status: :not_found unless user
+    return render json: { error: "USER_NOT_FOUND" }, status: :not_found unless user
 
-    Membership.find_or_create_by!(group: @group, user: user) { |m| m.role = 'member' }
+    Membership.find_or_create_by!(group: @group, user: user) { |m| m.role = "member" }
     render json: { ok: true }
   end
 
@@ -178,6 +178,6 @@ class Api::V1::GroupsController < ApplicationController
 
   def set_group
     @group = Group.find_by(id: params[:id])
-    render json: { error: 'NOT_FOUND' }, status: :not_found unless @group
+    render json: { error: "NOT_FOUND" }, status: :not_found unless @group
   end
 end

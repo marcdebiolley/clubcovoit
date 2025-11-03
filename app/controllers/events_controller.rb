@@ -12,11 +12,11 @@ class EventsController < ActionController::Base
 
   def set_group
     @group = Group.find_by(invite_code: params[:club_share_token] || params[:share_token])
-    render plain: 'Club introuvable', status: :not_found and return unless @group
+    render plain: "Club introuvable", status: :not_found and return unless @group
   end
 
   def set_ride
     @ride = Ride.find_by(id: params[:id], group_id: @group.id)
-    render plain: 'Événement introuvable', status: :not_found unless @ride
+    render plain: "Événement introuvable", status: :not_found unless @ride
   end
 end
