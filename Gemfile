@@ -2,8 +2,6 @@ source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.3"
-# Use PostgreSQL as the database for Active Record
-gem "pg", "~> 1.5"
 # Use the Puma web server
 gem "puma", ">= 5.0"
 
@@ -40,3 +38,8 @@ end
 gem "bcrypt", "~> 3.1"
 gem "jwt", "~> 3.1"
 gem "rack-cors", "~> 3.0"
+
+
+# Gemfile
+gem "mysql2", "~> 0.5"
+# retire pg si présent
