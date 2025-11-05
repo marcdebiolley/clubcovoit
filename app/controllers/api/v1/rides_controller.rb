@@ -1,7 +1,7 @@
 class Api::V1::RidesController < ApplicationController
   before_action :require_user!
-  before_action :set_ride, only: [:show, :destroy, :authenticate]
-  before_action :set_ride_for_update, only: [:update]
+  before_action :set_ride, only: [ :show, :destroy, :authenticate ]
+  before_action :set_ride_for_update, only: [ :update ]
 
   # GET /api/v1/rides
   def index
@@ -31,12 +31,12 @@ class Api::V1::RidesController < ApplicationController
   def update
     # Only creator can update (simple rule for now)
     if @ride.user_id != current_user.id
-      return render json: { error: 'FORBIDDEN' }, status: :forbidden
+      return render json: { error: "FORBIDDEN" }, status: :forbidden
     end
     if @ride.update(ride_params)
       render json: { ok: true, ride: @ride }
     else
-      render json: { error: 'VALIDATION_ERROR', details: @ride.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "VALIDATION_ERROR", details: @ride.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -50,30 +50,30 @@ class Api::V1::RidesController < ApplicationController
     if ride.save
       render json: { id: ride.id, invite_code: ride.invite_code }, status: :created
     else
-      render json: { error: 'VALIDATION_ERROR', details: ride.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "VALIDATION_ERROR", details: ride.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # GET /api/v1/rides/resolve?code=...
   def resolve
     code = params[:code].to_s
-    return render json: { error: 'Missing code' }, status: :bad_request if code.blank?
+    return render json: { error: "Missing code" }, status: :bad_request if code.blank?
     ride = Ride.find_by(invite_code: code)
-    return render json: { error: 'Not found' }, status: :not_found unless ride
+    return render json: { error: "Not found" }, status: :not_found unless ride
     render json: { id: ride.id, protected: ride.protected? }
   end
 
   # POST /api/v1/rides/:id/auth
   def authenticate
     unless @ride
-      return render json: { error: 'Ride not found' }, status: :not_found
+      return render json: { error: "Ride not found" }, status: :not_found
     end
     unless @ride.protected?
       return render json: { token: nil }
     end
     password = params[:password].to_s
     unless @ride.verify_password(password)
-      return render json: { error: 'INVALID_PASSWORD' }, status: :unauthorized
+      return render json: { error: "INVALID_PASSWORD" }, status: :unauthorized
     end
     token = sign_ride_token(@ride.id)
     render json: { token: token }
@@ -82,8 +82,8 @@ class Api::V1::RidesController < ApplicationController
   # GET /api/v1/rides/:id
   def show
     return require_ride_access!(@ride) if @ride.protected? && !verify_ride_token(@ride.id)
-    drivers = @ride.participants.where(role: 'driver').order(:id)
-    passengers = @ride.participants.where(role: 'passenger').order(:id)
+    drivers = @ride.participants.where(role: "driver").order(:id)
+    passengers = @ride.participants.where(role: "passenger").order(:id)
     cars = @ride.cars.order(:id)
     waiting_list = passengers.select { |p| p.car_id.nil? }
     render json: {
@@ -110,11 +110,11 @@ class Api::V1::RidesController < ApplicationController
 
   def set_ride_for_update
     @ride = Ride.find_by(id: params[:id])
-    return render json: { error: 'Not found' }, status: :not_found unless @ride
+    render json: { error: "Not found" }, status: :not_found unless @ride
   end
 
   def require_ride_access!(ride)
-    render json: { error: 'UNAUTHORIZED' }, status: :unauthorized
+    render json: { error: "UNAUTHORIZED" }, status: :unauthorized
   end
 
   def ride_params

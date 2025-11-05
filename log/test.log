@@ -1,0 +1,85 @@
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35m (197.0ms)[0m  [1m[35mDROP DATABASE IF EXISTS "mon_covoiturage_test"[0m
+  [1m[35m (226.6ms)[0m  [1m[35mCREATE DATABASE "mon_covoiturage_test" ENCODING = 'unicode'[0m
+  [1m[35mSQL (39.6ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "plpgsql" SCHEMA pg_catalog[0m
+  [1m[35m (0.4ms)[0m  [1m[35mDROP TABLE IF EXISTS "cars" CASCADE[0m
+  [1m[35m (7.2ms)[0m  [1m[35mCREATE TABLE "cars" ("id" bigserial primary key, "ride_id" integer NOT NULL, "name" character varying, "origin" character varying, "departure_time" character varying, "seats_total" integer DEFAULT 4 NOT NULL, "seats_taken" integer DEFAULT 0 NOT NULL, "driver_name" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "pickup_address" character varying, "latitude" decimal(10,6), "longitude" decimal(10,6))[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_cars_on_ride_id" ON "cars" ("ride_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE IF EXISTS "groups" CASCADE[0m
+  [1m[35m (2.7ms)[0m  [1m[35mCREATE TABLE "groups" ("id" bigserial primary key, "user_id" integer NOT NULL, "name" character varying NOT NULL, "description" text, "invite_code" character varying NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "kind" character varying)[0m
+  [1m[35m (1.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_groups_on_invite_code" ON "groups" ("invite_code")[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_groups_on_user_id" ON "groups" ("user_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE IF EXISTS "memberships" CASCADE[0m
+  [1m[35m (17.9ms)[0m  [1m[35mCREATE TABLE "memberships" ("id" bigserial primary key, "group_id" integer NOT NULL, "user_id" integer NOT NULL, "role" character varying DEFAULT 'member' NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[35m (1.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_memberships_on_group_id_and_user_id" ON "memberships" ("group_id", "user_id")[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_memberships_on_group_id" ON "memberships" ("group_id")[0m
+  [1m[35m (2.1ms)[0m  [1m[35mCREATE INDEX "index_memberships_on_user_id" ON "memberships" ("user_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mDROP TABLE IF EXISTS "participants" CASCADE[0m
+  [1m[35m (5.9ms)[0m  [1m[35mCREATE TABLE "participants" ("id" bigserial primary key, "ride_id" integer NOT NULL, "name" character varying, "role" character varying, "seats_offered" integer, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "car_id" integer)[0m
+  [1m[35m (2.4ms)[0m  [1m[35mCREATE INDEX "index_participants_on_car_id" ON "participants" ("car_id")[0m
+  [1m[35m (1.8ms)[0m  [1m[35mCREATE INDEX "index_participants_on_ride_id" ON "participants" ("ride_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[35mDROP TABLE IF EXISTS "rides" CASCADE[0m
+  [1m[35m (4.5ms)[0m  [1m[35mCREATE TABLE "rides" ("id" bigserial primary key, "title" character varying, "date" date, "time" character varying, "origin" character varying, "destination" character varying, "seats_total" integer, "seats_taken" integer, "note" text, "invite_code" character varying, "password_salt" character varying, "password_hash" character varying, "user_id" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "group_id" bigint)[0m
+  [1m[35m (1.7ms)[0m  [1m[35mCREATE INDEX "index_rides_on_group_id" ON "rides" ("group_id")[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_rides_on_invite_code" ON "rides" ("invite_code")[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_rides_on_user_id" ON "rides" ("user_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE IF EXISTS "users" CASCADE[0m
+  [1m[35m (6.7ms)[0m  [1m[35mCREATE TABLE "users" ("id" bigserial primary key, "email" character varying, "display_name" character varying, "password_digest" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, "first_name" character varying, "last_name" character varying, "car_type" character varying, "avatar_url" character varying, "seats_available" integer, "telephone" character varying)[0m
+  [1m[35m (3.5ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_lower_display_name" ON "users" (lower((display_name)::text))[0m
+  [1m[35m (3.2ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email")[0m
+  [1m[35m (18.9ms)[0m  [1m[35mALTER TABLE "cars" ADD CONSTRAINT "fk_rails_2653688368"
+FOREIGN KEY ("ride_id")
+  REFERENCES "rides" ("id")
+[0m
+  [1m[35m (3.2ms)[0m  [1m[35mALTER TABLE "groups" ADD CONSTRAINT "fk_rails_5e78cd340a"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (2.5ms)[0m  [1m[35mALTER TABLE "memberships" ADD CONSTRAINT "fk_rails_aaf389f138"
+FOREIGN KEY ("group_id")
+  REFERENCES "groups" ("id")
+[0m
+  [1m[35m (2.0ms)[0m  [1m[35mALTER TABLE "memberships" ADD CONSTRAINT "fk_rails_99326fb65d"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (2.0ms)[0m  [1m[35mALTER TABLE "participants" ADD CONSTRAINT "fk_rails_326b466880"
+FOREIGN KEY ("car_id")
+  REFERENCES "cars" ("id")
+[0m
+  [1m[35m (1.4ms)[0m  [1m[35mALTER TABLE "participants" ADD CONSTRAINT "fk_rails_e0e2aa0900"
+FOREIGN KEY ("ride_id")
+  REFERENCES "rides" ("id")
+[0m
+  [1m[35m (0.9ms)[0m  [1m[35mALTER TABLE "rides" ADD CONSTRAINT "fk_rails_16270193fd"
+FOREIGN KEY ("group_id")
+  REFERENCES "groups" ("id")
+[0m
+  [1m[35m (1.8ms)[0m  [1m[35mALTER TABLE "rides" ADD CONSTRAINT "fk_rails_922df144cd"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+[0m
+  [1m[35m (4.9ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (6.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (14.7ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES (20251030143000)[0m
+  [1m[35m (45.0ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES
+(20251022152100),
+(20251022152000),
+(20251015094000),
+(20251014165000),
+(20251014163000),
+(20251014155600),
+(20251014155500),
+(20251014153200),
+(20251014150002),
+(20251014150001),
+(20251014085047),
+(20251014085046),
+(20251014085045);[0m
+  [1m[35m (3.3ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Create (1.3ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'test', '2025-11-05 12:13:17.069749', '2025-11-05 12:13:17.069751') RETURNING "key"[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::InternalMetadata Create (0.7ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('schema_sha1', 'ff0218c53a446882f1842ff76f40b714d785a5e8', '2025-11-05 12:13:17.085101', '2025-11-05 12:13:17.085104') RETURNING "key"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (7.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m

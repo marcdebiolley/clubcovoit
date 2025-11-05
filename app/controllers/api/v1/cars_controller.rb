@@ -1,7 +1,7 @@
 class Api::V1::CarsController < ApplicationController
   before_action :require_user!
-  before_action :set_ride, only: [:index, :create]
-  before_action :set_car, only: [:update, :destroy]
+  before_action :set_ride, only: [ :index, :create ]
+  before_action :set_car, only: [ :update, :destroy ]
 
   # GET /api/v1/rides/:ride_id/cars
   def index
@@ -16,12 +16,12 @@ class Api::V1::CarsController < ApplicationController
     if car.save
       # Optionnel: créer un participant conducteur si driver_name fourni
       if car.driver_name.present?
-        @ride.participants.create!(name: car.driver_name, role: 'driver', seats_offered: car.seats_total, car_id: car.id)
+        @ride.participants.create!(name: car.driver_name, role: "driver", seats_offered: car.seats_total, car_id: car.id)
       end
       recalc_ride!(@ride, car.id)
       render json: { id: car.id }, status: :created
     else
-      render json: { error: 'VALIDATION_ERROR', details: car.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "VALIDATION_ERROR", details: car.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -33,7 +33,7 @@ class Api::V1::CarsController < ApplicationController
       recalc_ride!(ride, @car.id)
       render json: { ok: true }
     else
-      render json: { error: 'VALIDATION_ERROR', details: @car.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: "VALIDATION_ERROR", details: @car.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -42,7 +42,7 @@ class Api::V1::CarsController < ApplicationController
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
     if @car.participants.exists?
-      return render json: { error: 'CAR_HAS_PARTICIPANTS' }, status: :unprocessable_entity
+      return render json: { error: "CAR_HAS_PARTICIPANTS" }, status: :unprocessable_entity
     end
     @car.destroy!
     recalc_ride!(ride, nil)
@@ -53,16 +53,16 @@ class Api::V1::CarsController < ApplicationController
 
   def set_ride
     @ride = Ride.find_by(id: params[:ride_id])
-    render json: { error: 'Ride not found' }, status: :not_found unless @ride
+    render json: { error: "Ride not found" }, status: :not_found unless @ride
   end
 
   def set_car
     @car = Car.find_by(id: params[:id])
-    render json: { error: 'Not found' }, status: :not_found unless @car
+    render json: { error: "Not found" }, status: :not_found unless @car
   end
 
   def require_ride_access!(ride)
-    render json: { error: 'UNAUTHORIZED' }, status: :unauthorized
+    render json: { error: "UNAUTHORIZED" }, status: :unauthorized
   end
 
   def car_params
@@ -74,7 +74,7 @@ class Api::V1::CarsController < ApplicationController
   end
 
   def recalc_ride!(ride, car_id)
-    ride.update!(seats_taken: ride.participants.where(role: 'passenger').count)
+    ride.update!(seats_taken: ride.participants.where(role: "passenger").count)
     if car_id && (car = Car.find_by(id: car_id))
       car.recalc_seats_taken!
     end
