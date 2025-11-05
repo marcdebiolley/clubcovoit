@@ -1,6 +1,64 @@
 name: CI
 
 on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  build:
+    name: Lint, scan and tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby 3.2.9
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.9'
+          bundler-cache: true
+
+      - name: Install Node (optional)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Bundle install (all groups for CI)
+        run: |
+          bundle config set path 'vendor/bundle'
+          bundle install --jobs 4 --retry 3
+
+      - name: RuboCop (if present)
+        run: |
+          if bundle list | grep -q rubocop; then
+            bundle exec rubocop --parallel
+          else
+            echo "Rubocop not in Gemfile – skipping"
+          fi
+
+      - name: Brakeman (if present)
+        run: |
+          if bundle list | grep -q brakeman; then
+            bundle exec brakeman -q -w2
+          else
+            echo "Brakeman not in Gemfile – skipping"
+          fi
+
+      - name: RSpec (if present)
+        env:
+          RAILS_ENV: test
+        run: |
+          if bundle list | grep -q rspec-core; then
+            bundle exec rake db:prepare 2>/dev/null || true
+            bundle exec rspec --format progress
+          else
+            echo "RSpec not in Gemfile – skipping"
+          fi
+name: CI
+
+on:
   pull_request:
   push:
     branches: [ main ]
