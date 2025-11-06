@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/css/forms.css?v=3" />
   <link rel="stylesheet" href="/css/layout.css?v=3" />
   <link rel="stylesheet" href="/css/pages/clubs.css?v=3" />
-  <link rel="stylesheet" href="/css/style.css?v=3" />
+  <link rel="stylesheet" href="/css/style.css?v=4" />
 </head>
 <body class="page-clubs">
   <div id="app-navbar"></div>
@@ -148,13 +148,19 @@
 
     // Dropdown functions
     function toggleJoinDropdown() {
+      console.log('toggleJoinDropdown called'); // Debug
       const dropdown = document.getElementById('joinDropdown');
       const isVisible = dropdown.classList.contains('show');
       
+      console.log('Dropdown element:', dropdown); // Debug
+      console.log('Is visible:', isVisible); // Debug
+      
       if (isVisible) {
         dropdown.classList.remove('show');
+        console.log('Hiding dropdown'); // Debug
       } else {
         dropdown.classList.add('show');
+        console.log('Showing dropdown'); // Debug
         // Focus sur le champ après un petit délai pour que l'animation se termine
         setTimeout(() => {
           document.getElementById('inviteCode').focus();
