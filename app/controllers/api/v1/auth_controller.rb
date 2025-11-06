@@ -1,4 +1,5 @@
 class Api::V1::AuthController < ApplicationController
+  skip_before_action :require_user!, only: [ :signup, :login ], raise: false
   def signup
     email = params[:email].to_s.downcase
     password = params[:password].to_s
