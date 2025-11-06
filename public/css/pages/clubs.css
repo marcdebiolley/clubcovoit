@@ -1,4 +1,42 @@
 /* Page: clubs */
+.page-clubs .page-header {
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.page-clubs .nav {
+  justify-content: center;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .page-clubs .page-header {
+    margin-bottom: 20px;
+  }
+  
+  .page-clubs .nav {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .page-clubs .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .clubs-hero {
+    padding: 20px 0;
+  }
+  
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+}
 .page-clubs .container {
   max-width: 1200px;
 }

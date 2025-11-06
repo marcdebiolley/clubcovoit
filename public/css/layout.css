@@ -4,6 +4,24 @@
   margin: 0 auto;
   padding: 24px;
 }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+    max-width: 100%;
+  }
+  
+  body {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+@media (max-width: 414px) {
+  .container {
+    padding: 12px;
+  }
+}
 .header {
   text-align: center;
   margin: 20px 0 24px;

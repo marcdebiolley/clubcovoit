@@ -92,20 +92,30 @@
 
 /* Mobile tweaks */
 @media (max-width: 768px) {
-  .nav-inner {
-    padding: 0 1rem;
+  .navbar {
+    padding: 8px 0;
   }
-  .logo { font-size: 1.75rem; }
+  .nav-inner {
+    padding: 0 16px;
+  }
+  .logo { 
+    font-size: 1.5rem;
+    position: static;
+    transform: none;
+  }
   .navbar .nav {
     flex-wrap: nowrap;
     gap: 8px;
   }
 }
 
-/* Allow wrapping only on small screens */
-@media (max-width: 768px) {
-  .navbar .nav {
-    flex-wrap: wrap;
+/* iPhone portrait specific */
+@media (max-width: 414px) {
+  .nav-inner {
+    padding: 0 12px;
+  }
+  .logo {
+    font-size: 1.3rem;
   }
 }
 
@@ -140,7 +150,7 @@
 
 .mobile-menu {
   position: fixed;
-  top: 56px; /* approx navbar height */
+  top: 60px; /* navbar height */
   left: 0;
   right: 0;
   background: var(--white);
@@ -152,7 +162,9 @@
     transform 0.3s ease,
     opacity 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  z-index: 99;
+  z-index: 999;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 .mobile-menu.active {
   transform: translateY(0);
@@ -171,6 +183,13 @@
   text-decoration: none;
   color: var(--dark);
   font-weight: 500;
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--surface-border);
+  font-size: 1.1rem;
+}
+.mobile-menu-links a:hover {
+  color: var(--primary);
 }
 .mobile-menu-cta {
   padding: 0 20px 16px;
