@@ -25,9 +25,49 @@
   width: 100%;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 768px) {
+  .page-signup .container {
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .page-signup .card {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .page-signup .header {
+    margin: 10px 0 20px;
+  }
+  
+  .page-signup .header h1 {
+    font-size: 1.5rem;
+  }
+  
   .page-signup .row .form-group {
     flex: 1 1 100%;
+  }
+  
+  .page-signup input {
+    font-size: 16px; /* Évite le zoom sur iOS */
+    padding: 12px;
+  }
+  
+  .page-signup .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .page-signup .btn-secondary {
+    width: 100%;
+    margin-top: 12px;
   }
 }
 

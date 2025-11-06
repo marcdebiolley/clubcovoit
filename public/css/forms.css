@@ -75,3 +75,31 @@ textarea {
   border-radius: 8px;
   padding: 8px;
 }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  input, select, textarea {
+    font-size: 16px; /* Évite le zoom automatique sur iOS */
+    -webkit-appearance: none; /* Supprime le style par défaut iOS */
+    appearance: none; /* Standard property pour compatibilité */
+  }
+  
+  .card {
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  /* Améliore l'accessibilité tactile */
+  input, select, textarea, .btn {
+    min-height: 44px; /* Taille minimale recommandée pour le tactile */
+  }
+}

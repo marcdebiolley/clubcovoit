@@ -7,3 +7,50 @@
 .page-login .header p {
   color: var(--secondary-light);
 }
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+  .page-login .container {
+    padding: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .page-login .card {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .page-login .header {
+    margin: 10px 0 20px;
+  }
+  
+  .page-login .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .page-login .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .page-login input {
+    font-size: 16px; /* Évite le zoom sur iOS */
+    padding: 12px;
+  }
+  
+  .page-login .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .page-login .btn-secondary {
+    width: 100%;
+    margin-top: 12px;
+  }
+}
