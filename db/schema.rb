@@ -12,10 +12,9 @@
 
 ActiveRecord::Schema[8.0].define(version: 2025_10_30_143000) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_catalog.plpgsql"
 
   create_table "cars", force: :cascade do |t|
-    t.integer "ride_id", null: false
+    t.bigint "ride_id", null: false
     t.string "name"
     t.string "origin"
     t.string "departure_time"
@@ -31,7 +30,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_143000) do
   end
 
   create_table "groups", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.string "name", null: false
     t.text "description"
     t.string "invite_code", null: false
@@ -43,8 +42,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_143000) do
   end
 
   create_table "memberships", force: :cascade do |t|
-    t.integer "group_id", null: false
-    t.integer "user_id", null: false
+    t.bigint "group_id", null: false
+    t.bigint "user_id", null: false
     t.string "role", default: "member", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -54,13 +53,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_143000) do
   end
 
   create_table "participants", force: :cascade do |t|
-    t.integer "ride_id", null: false
+    t.bigint "ride_id", null: false
     t.string "name"
     t.string "role"
     t.integer "seats_offered"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "car_id"
+    t.bigint "car_id"
     t.index ["car_id"], name: "index_participants_on_car_id"
     t.index ["ride_id"], name: "index_participants_on_ride_id"
   end
@@ -77,7 +76,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_143000) do
     t.string "invite_code"
     t.string "password_salt"
     t.string "password_hash"
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "group_id"
@@ -98,7 +97,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_30_143000) do
     t.string "avatar_url"
     t.integer "seats_available"
     t.string "telephone"
-    t.index "lower((display_name)::text)", name: "index_users_on_lower_display_name", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

@@ -1,21 +1,53 @@
+# config/database.yml
+
 default: &default
-  adapter: postgresql
-  encoding: unicode
-  pool: 5
-  host: localhost
+  adapter: mysql2
+  encoding: utf8mb4
+  collation: utf8mb4_unicode_ci
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 10) %>
+  host: 127.0.0.1
+  port: 3306
+  variables:
+    sql_mode: TRADITIONAL
 
 development:
   <<: *default
-  database: mon_covoiturage_dev
+  database: clubcovoit_development
+  username: <%= ENV.fetch("DB_USER", "marcodb") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
 
 test:
   <<: *default
-  database: mon_covoiturage_test
+  database: clubcovoit_test
+  username: <%= ENV.fetch("DB_USER", "marcodb") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
 
 production:
   primary:
     <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
   cable:
     <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
+  queue:
+    <<: *default
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
+  cache:
+    <<: *default
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306

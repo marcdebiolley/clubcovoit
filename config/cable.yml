@@ -1,17 +1,54 @@
-# Async adapter only works within the same process, so for manually triggering cable updates from a console,
-# and seeing results in the browser, you must do so from the web console (running inside the dev process),
-# not a terminal started via bin/rails console! Add "console" to any action or any ERB template view
-# to make the web console appear.
+# config/database.yml
+
+default: &default
+  adapter: mysql2
+  encoding: utf8mb4
+  collation: utf8mb4_unicode_ci
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 10) %>
+  host: 127.0.0.1
+  port: 3306
+  variables:
+    sql_mode: TRADITIONAL
+
 development:
-  adapter: async
+  <<: *default
+  database: clubcovoit_development
+  username: <%= ENV.fetch("DB_USER", "marcodb") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
 
 test:
-  adapter: test
+  <<: *default
+  database: clubcovoit_test
+  username: <%= ENV.fetch("DB_USER", "marcodb") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
 
 production:
-  adapter: solid_cable
-  connects_to:
-    database:
-      writing: cable
-  polling_interval: 0.1.seconds
-  message_retention: 1.day
+  primary:
+    <<: *default
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
+  cable:
+    <<: *default
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
+  queue:
+    <<: *default
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
+  cache:
+    <<: *default
+    database: clubcovoit_production
+    username: marcodb
+    password: Prana.2020
+    host: 127.0.0.1
+    port: 3306
+           
