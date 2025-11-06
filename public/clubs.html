@@ -25,6 +25,7 @@
       </div>
       <div class="nav">
         <a class="btn" href="/club-create.html">➕ Créer un nouveau club</a>
+        <button class="btn btn-secondary" onclick="showJoinModal()">🔗 Rejoindre avec un code</button>
       </div>
     </div>
     <div id="clubsList" class="clubs-grid"></div>
@@ -34,6 +35,31 @@
       <div id="myUpcoming" class="clubs-grid"></div>
     </section>
   </div>
+
+  <!-- Modal pour rejoindre un groupe -->
+  <div id="joinModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Rejoindre un club</h3>
+        <button class="modal-close" onclick="hideJoinModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Entrez le code d'invitation du club que vous souhaitez rejoindre :</p>
+        <form id="joinForm" onsubmit="joinGroup(event)">
+          <div class="form-group">
+            <label for="inviteCode">Code d'invitation</label>
+            <input type="text" id="inviteCode" name="inviteCode" required 
+                   placeholder="Ex: ABC123XYZ" class="form-control">
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="hideJoinModal()">Annuler</button>
+            <button type="submit" class="btn btn-primary">Rejoindre le club</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/header.js?v=3"></script>
   <script>
     function getUserToken() { return localStorage.getItem('userToken'); }
@@ -133,6 +159,58 @@
         box.innerHTML = upcoming.length ? upcoming.map(rideItem).join('') : '<div class="secondary">Aucun trajet à venir</div>';
       } catch {}
     }
+
+    // Modal functions
+    function showJoinModal() {
+      document.getElementById('joinModal').style.display = 'flex';
+      document.getElementById('inviteCode').focus();
+    }
+
+    function hideJoinModal() {
+      document.getElementById('joinModal').style.display = 'none';
+      document.getElementById('joinForm').reset();
+    }
+
+    async function joinGroup(event) {
+      event.preventDefault();
+      const inviteCode = document.getElementById('inviteCode').value.trim();
+      
+      if (!inviteCode) {
+        alert('Veuillez entrer un code d\'invitation');
+        return;
+      }
+
+      try {
+        const result = await fetchJSON('/api/v1/groups/join', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invite_code: inviteCode })
+        });
+
+        if (result.ok) {
+          hideJoinModal();
+          alert('Vous avez rejoint le club avec succès !');
+          // Recharger la liste des clubs
+          loadGroups();
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'adhésion au club:', error);
+        if (error.message.includes('404')) {
+          alert('Code d\'invitation invalide ou expiré');
+        } else if (error.message.includes('400')) {
+          alert('Code d\'invitation requis');
+        } else {
+          alert('Erreur lors de l\'adhésion au club. Veuillez réessayer.');
+        }
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('joinModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideJoinModal();
+      }
+    });
 
     if (groupIdParam) {
       // If someone navigates with ?id=, redirect to club detail
