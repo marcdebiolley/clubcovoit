@@ -570,6 +570,7 @@ dialog {
 .join-dropdown {
   position: relative;
   display: inline-block;
+  z-index: 1001; /* Assure que le conteneur est au-dessus */
 }
 
 .dropdown-content {
@@ -579,10 +580,10 @@ dialog {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 12px;
   min-width: 250px;
-  z-index: 1000;
+  z-index: 9999; /* Z-index très élevé pour être au-dessus de tout */
   margin-top: 4px;
 }
 
@@ -610,4 +611,32 @@ dialog {
   padding: 6px 12px !important;
   font-size: 0.875rem !important;
   white-space: nowrap;
+}
+
+/* Mobile responsive for dropdown */
+@media (max-width: 768px) {
+  .dropdown-content {
+    right: -10px; /* Décale légèrement pour éviter les bords */
+    left: auto;
+    min-width: 280px;
+    max-width: calc(100vw - 32px); /* Évite le débordement */
+  }
+  
+  .dropdown-content form {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .form-control-small {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+  
+  .btn-small {
+    width: 100%;
+    padding: 10px !important;
+    font-size: 16px !important;
+  }
 }
