@@ -26,28 +26,28 @@ production:
   primary:
     <<: *default
     database: clubcovoit_production
-    username: marcodb
-    password: Prana.2020
+    username: <%= ENV.fetch("DB_USER", "marcodb") %>
+    password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
     host: 127.0.0.1
     port: 3306
   cable:
     <<: *default
     database: clubcovoit_production
-    username: marcodb
-    password: Prana.2020
+    username: <%= ENV.fetch("DB_USER", "marcodb") %>
+    password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
     host: 127.0.0.1
     port: 3306
   queue:
     <<: *default
     database: clubcovoit_production
-    username: marcodb
-    password: Prana.2020
+    username: <%= ENV.fetch("DB_USER", "marcodb") %>
+    password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
     host: 127.0.0.1
     port: 3306
   cache:
     <<: *default
     database: clubcovoit_production
-    username: marcodb
-    password: Prana.2020
+    username: <%= ENV.fetch("DB_USER", "marcodb") %>
+    password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
     host: 127.0.0.1
     port: 3306
