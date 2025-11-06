@@ -585,6 +585,16 @@ dialog {
   min-width: 250px;
   z-index: 9999; /* Z-index très élevé pour être au-dessus de tout */
   margin-top: 4px;
+  display: none !important; /* Caché par défaut, important pour override */
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown-content.show {
+  display: block !important; /* Visible quand la classe show est ajoutée */
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .dropdown-content form {

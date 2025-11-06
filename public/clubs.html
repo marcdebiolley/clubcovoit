@@ -27,7 +27,7 @@
         <a class="btn" href="/club-create.html">➕ Créer un nouveau club</a>
         <div class="join-dropdown">
           <button class="btn btn-secondary" onclick="toggleJoinDropdown()">🔗 Rejoindre avec un code</button>
-          <div id="joinDropdown" class="dropdown-content" style="display: none;">
+          <div id="joinDropdown" class="dropdown-content">
             <form id="joinForm" onsubmit="joinGroup(event)">
               <input type="text" id="inviteCode" name="inviteCode" required 
                      placeholder="Code d'invitation" class="form-control-small">
@@ -149,15 +149,22 @@
     // Dropdown functions
     function toggleJoinDropdown() {
       const dropdown = document.getElementById('joinDropdown');
-      const isVisible = dropdown.style.display === 'block';
-      dropdown.style.display = isVisible ? 'none' : 'block';
-      if (!isVisible) {
-        document.getElementById('inviteCode').focus();
+      const isVisible = dropdown.classList.contains('show');
+      
+      if (isVisible) {
+        dropdown.classList.remove('show');
+      } else {
+        dropdown.classList.add('show');
+        // Focus sur le champ après un petit délai pour que l'animation se termine
+        setTimeout(() => {
+          document.getElementById('inviteCode').focus();
+        }, 100);
       }
     }
 
     function hideJoinDropdown() {
-      document.getElementById('joinDropdown').style.display = 'none';
+      const dropdown = document.getElementById('joinDropdown');
+      dropdown.classList.remove('show');
       document.getElementById('joinForm').reset();
     }
 
