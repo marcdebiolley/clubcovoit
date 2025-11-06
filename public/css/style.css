@@ -32,6 +32,14 @@
   gap: 1.25rem;
 }
 
+/* Mobile responsive grid */
+@media (max-width: 768px) {
+  .clubs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 /* Final navbar overrides to keep header links as text */
 .navbar .nav .btn,
 .navbar .nav .btn.btn-secondary {
@@ -564,6 +572,92 @@ dialog {
 @media (max-width: 720px) {
   .cookie-inner { flex-direction: column; align-items: stretch; }
   .cookie-actions { display: flex; justify-content: flex-end; }
+}
+
+/* Global mobile fixes */
+@media (max-width: 768px) {
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+    margin: 0;
+  }
+  
+  /* Fix any element that might overflow */
+  .card, .club-card, .car-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Ensure text doesn't overflow */
+  h1, h2, h3, h4, h5, h6, p, div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Fix tables and wide elements */
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  /* Fix images */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Fix buttons - only full width for primary actions */
+  .btn.btn-primary, .btn.btn-full {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .btn {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Fix form elements */
+  input, select, textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Fix Mapbox maps */
+  .mapboxgl-map, .mapbox-gl-map {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .mapboxgl-canvas-container, .mapboxgl-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Fix any potential overflow elements */
+  pre, code {
+    overflow-x: auto;
+    word-wrap: break-word;
+  }
+  
+  /* Fix wide tables */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Join dropdown styles */
