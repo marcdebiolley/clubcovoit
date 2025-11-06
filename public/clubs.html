@@ -25,7 +25,16 @@
       </div>
       <div class="nav">
         <a class="btn" href="/club-create.html">➕ Créer un nouveau club</a>
-        <button class="btn btn-secondary" onclick="showJoinModal()">🔗 Rejoindre avec un code</button>
+        <div class="join-dropdown">
+          <button class="btn btn-secondary" onclick="toggleJoinDropdown()">🔗 Rejoindre avec un code</button>
+          <div id="joinDropdown" class="dropdown-content" style="display: none;">
+            <form id="joinForm" onsubmit="joinGroup(event)">
+              <input type="text" id="inviteCode" name="inviteCode" required 
+                     placeholder="Code d'invitation" class="form-control-small">
+              <button type="submit" class="btn btn-primary btn-small">Rejoindre</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
     <div id="clubsList" class="clubs-grid"></div>
@@ -36,29 +45,6 @@
     </section>
   </div>
 
-  <!-- Modal pour rejoindre un groupe -->
-  <div id="joinModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Rejoindre un club</h3>
-        <button class="modal-close" onclick="hideJoinModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p>Entrez le code d'invitation du club que vous souhaitez rejoindre :</p>
-        <form id="joinForm" onsubmit="joinGroup(event)">
-          <div class="form-group">
-            <label for="inviteCode">Code d'invitation</label>
-            <input type="text" id="inviteCode" name="inviteCode" required 
-                   placeholder="Ex: ABC123XYZ" class="form-control">
-          </div>
-          <div class="form-actions">
-            <button type="button" class="btn btn-secondary" onclick="hideJoinModal()">Annuler</button>
-            <button type="submit" class="btn btn-primary">Rejoindre le club</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <script src="/js/header.js?v=3"></script>
   <script>
@@ -160,14 +146,18 @@
       } catch {}
     }
 
-    // Modal functions
-    function showJoinModal() {
-      document.getElementById('joinModal').style.display = 'flex';
-      document.getElementById('inviteCode').focus();
+    // Dropdown functions
+    function toggleJoinDropdown() {
+      const dropdown = document.getElementById('joinDropdown');
+      const isVisible = dropdown.style.display === 'block';
+      dropdown.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) {
+        document.getElementById('inviteCode').focus();
+      }
     }
 
-    function hideJoinModal() {
-      document.getElementById('joinModal').style.display = 'none';
+    function hideJoinDropdown() {
+      document.getElementById('joinDropdown').style.display = 'none';
       document.getElementById('joinForm').reset();
     }
 
@@ -188,7 +178,7 @@
         });
 
         if (result.ok) {
-          hideJoinModal();
+          hideJoinDropdown();
           alert('Vous avez rejoint le club avec succès !');
           // Recharger la liste des clubs
           loadGroups();
@@ -205,10 +195,11 @@
       }
     }
 
-    // Close modal when clicking outside
-    document.getElementById('joinModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        hideJoinModal();
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.querySelector('.join-dropdown');
+      if (!dropdown.contains(e.target)) {
+        hideJoinDropdown();
       }
     });
 

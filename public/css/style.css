@@ -566,77 +566,48 @@ dialog {
   .cookie-actions { display: flex; justify-content: flex-end; }
 }
 
-/* Modal styles */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
+/* Join dropdown styles */
+.join-dropdown {
+  position: relative;
+  display: inline-block;
 }
 
-.modal-content {
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  right: 0;
   background: var(--white);
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 12px;
+  min-width: 250px;
+  z-index: 1000;
+  margin-top: 4px;
 }
 
-.modal-header {
+.dropdown-content form {
   display: flex;
-  justify-content: space-between;
+  gap: 8px;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border);
 }
 
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--dark);
+.form-control-small {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--gray);
-  padding: 0;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
+.form-control-small:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
 }
 
-.modal-close:hover {
-  background: var(--gray-light);
-  color: var(--dark);
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-body p {
-  margin-bottom: 1rem;
-  color: var(--gray);
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
+.btn-small {
+  padding: 6px 12px !important;
+  font-size: 0.875rem !important;
+  white-space: nowrap;
 }
