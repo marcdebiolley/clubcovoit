@@ -6,7 +6,7 @@ async function removeAllParticipantsAndDeleteCar(carId) {
     console.log('Retrait des participants de la voiture:', carId);
     
     // D'abord, récupérer les participants de cette voiture
-    const eventResponse = await fetch(`/api/v1/events/${eventIdParam}`, {
+    const eventResponse = await fetch(`/api/v1/rides/${eventId}`, {
       headers: { 'X-User-Token': getUserToken() }
     });
     const eventData = await eventResponse.json();
