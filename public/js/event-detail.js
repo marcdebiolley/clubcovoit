@@ -294,16 +294,29 @@ function bindPassengerCrud() {
           delCarBtn.dataset.busy = '1';
           delCarBtn.textContent = 'Suppression...';
           
+          const userToken = getUserToken();
           console.log('Tentative de suppression de la voiture:', cid);
+          console.log('Token utilisateur:', userToken ? 'présent' : 'MANQUANT');
+          
           const response = await fetch(`/api/v1/cars/${cid}`, {
             method: 'DELETE',
             headers: {
-              'X-User-Token': getUserToken(),
+              'X-User-Token': userToken,
               'Content-Type': 'application/json'
             }
           });
           
           console.log('Réponse suppression:', response.status, response.statusText);
+          console.log('Response headers:', [...response.headers.entries()]);
+          
+          // Essayer de lire la réponse même en cas d'erreur
+          let responseText = '';
+          try {
+            responseText = await response.clone().text();
+            console.log('Response body (raw):', responseText);
+          } catch (e) {
+            console.log('Could not read response body:', e);
+          }
           
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -322,7 +335,14 @@ function bindPassengerCrud() {
           showToast('Voiture supprimée avec succès');
           await loadEvent();
         } catch (error) {
-          console.error('Erreur lors de la suppression:', error);
+          console.error('=== ERREUR SUPPRESSION DÉTAILLÉE ===');
+          console.error('Error object:', error);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+          console.error('=====================================');
+          
+          // Afficher une alerte avec plus de détails pour debug
+          alert(`ERREUR SUPPRESSION:\n${error.message}\n\nVoir console pour plus de détails`);
           showToast(`Suppression impossible: ${error.message}`, 'error');
         } finally { 
           delete delCarBtn.dataset.busy;
