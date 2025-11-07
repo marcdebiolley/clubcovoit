@@ -460,11 +460,48 @@ async function loadRide() {
     document.querySelectorAll('[data-delcar]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const cid = btn.getAttribute('data-delcar');
-        if (!confirm('Supprimer cette voiture ?')) return;
+        if (!confirm('Supprimer cette voiture ? (Tous les participants seront automatiquement retirés)')) return;
+        
+        // Désactiver le bouton pendant la suppression
+        btn.disabled = true;
+        btn.textContent = 'Suppression...';
+        
         try {
-          await fetchJSON(`/api/v1/cars/${cid}`, { method: 'DELETE' });
+          console.log('Tentative de suppression de la voiture:', cid);
+          const response = await fetch(`/api/v1/cars/${cid}`, {
+            method: 'DELETE',
+            headers: {
+              'X-User-Token': getUserToken(),
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          console.log('Réponse suppression:', response.status, response.statusText);
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Erreur suppression:', errorData);
+            
+            // Gestion des erreurs spécifiques
+            if (errorData.error === 'CAR_HAS_PARTICIPANTS') {
+              throw new Error('Impossible de supprimer une voiture avec des participants. Retirez d\'abord tous les participants.');
+            } else if (errorData.error === 'UNAUTHORIZED') {
+              throw new Error('Vous n\'avez pas l\'autorisation de supprimer cette voiture.');
+            } else {
+              throw new Error(errorData.error || `Erreur serveur (${response.status})`);
+            }
+          }
+          
+          alert('Voiture supprimée avec succès !');
           await loadRide();
-        } catch (e) { alert('Suppression impossible (voiture avec participants)'); }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          alert(`Suppression impossible: ${error.message}`);
+          
+          // Restaurer le bouton
+          btn.disabled = false;
+          btn.textContent = 'Supprimer la voiture';
+        }
       });
     });
 

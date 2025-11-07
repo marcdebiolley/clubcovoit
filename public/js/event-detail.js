@@ -292,11 +292,42 @@ function bindPassengerCrud() {
         if (!confirm('Supprimer cette voiture ?')) return;
         try {
           delCarBtn.dataset.busy = '1';
-          await fetchJSON(`/api/v1/cars/${cid}`, { method: 'DELETE' });
-          showToast('Voiture supprimée');
+          delCarBtn.textContent = 'Suppression...';
+          
+          console.log('Tentative de suppression de la voiture:', cid);
+          const response = await fetch(`/api/v1/cars/${cid}`, {
+            method: 'DELETE',
+            headers: {
+              'X-User-Token': getUserToken(),
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          console.log('Réponse suppression:', response.status, response.statusText);
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Erreur suppression:', errorData);
+            
+            // Gestion des erreurs spécifiques
+            if (errorData.error === 'CAR_HAS_PARTICIPANTS') {
+              throw new Error('Impossible de supprimer une voiture avec des participants. Retirez d\'abord tous les participants.');
+            } else if (errorData.error === 'UNAUTHORIZED') {
+              throw new Error('Vous n\'avez pas l\'autorisation de supprimer cette voiture.');
+            } else {
+              throw new Error(errorData.error || `Erreur serveur (${response.status})`);
+            }
+          }
+          
+          showToast('Voiture supprimée avec succès');
           await loadEvent();
-        } catch (e) { showToast('Suppression impossible', 'error'); }
-        finally { delete delCarBtn.dataset.busy; }
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+          showToast(`Suppression impossible: ${error.message}`, 'error');
+        } finally { 
+          delete delCarBtn.dataset.busy;
+          delCarBtn.textContent = 'Supprimer la voiture';
+        }
         return;
       }
       // Car: edit open dialog (delegated)

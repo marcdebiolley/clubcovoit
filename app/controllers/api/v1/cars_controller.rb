@@ -41,9 +41,10 @@ class Api::V1::CarsController < ApplicationController
   def destroy
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
-    if @car.participants.exists?
-      return render json: { error: "CAR_HAS_PARTICIPANTS" }, status: :unprocessable_entity
-    end
+    
+    # Retirer automatiquement tous les participants de cette voiture
+    @car.participants.update_all(car_id: nil)
+    
     @car.destroy!
     recalc_ride!(ride, nil)
     render json: { ok: true }
