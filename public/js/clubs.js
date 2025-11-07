@@ -20,68 +20,94 @@ if (!getUserToken()) {
 const listEl = document.getElementById('clubsList');
 const groupIdParam = new URLSearchParams(location.search).get('id');
 
-// Déclarer les fonctions globales dès le début pour les onclick HTML
+// VERSION SIMPLE - Fonctions globales de base
 window.toggleJoinDropdown = function() {
-  console.log('toggleJoinDropdown called from window'); // Debug
-  const dropdown = document.getElementById('joinDropdown');
-  if (!dropdown) {
-    console.error('Dropdown element not found');
-    return;
+  console.log('=== toggleJoinDropdown START ===');
+  try {
+    const dropdown = document.getElementById('joinDropdown');
+    console.log('Dropdown element:', dropdown);
+    
+    if (!dropdown) {
+      console.error('Dropdown not found!');
+      alert('Erreur: Dropdown non trouvé');
+      return;
+    }
+    
+    const hasShow = dropdown.classList.contains('show');
+    console.log('Has show class:', hasShow);
+    
+    if (hasShow) {
+      dropdown.classList.remove('show');
+      console.log('Removed show class');
+    } else {
+      dropdown.classList.add('show');
+      console.log('Added show class');
+      
+      // Focus sur le champ
+      setTimeout(() => {
+        const input = document.getElementById('inviteCode');
+        if (input) {
+          input.focus();
+          console.log('Focused input');
+        }
+      }, 200);
+    }
+  } catch (error) {
+    console.error('Error in toggleJoinDropdown:', error);
+    alert('Erreur: ' + error.message);
   }
-  
-  const isVisible = dropdown.classList.contains('show');
-  console.log('Dropdown visible:', isVisible); // Debug
-  
-  if (isVisible) {
-    dropdown.classList.remove('show');
-    console.log('Hiding dropdown');
-  } else {
-    dropdown.classList.add('show');
-    console.log('Showing dropdown');
-    setTimeout(() => {
-      const input = document.getElementById('inviteCode');
-      if (input) input.focus();
-    }, 100);
-  }
+  console.log('=== toggleJoinDropdown END ===');
 };
 
 window.joinGroup = async function(event) {
-  console.log('joinGroup called from window'); // Debug
-  event.preventDefault();
-  
-  const inviteCodeInput = document.getElementById('inviteCode');
-  if (!inviteCodeInput) {
-    console.error('Invite code input not found');
-    return;
-  }
-  
-  const inviteCode = inviteCodeInput.value.trim();
-  console.log('Invite code:', inviteCode); // Debug
-  
-  if (!inviteCode) {
-    alert('Veuillez entrer un code d\'invitation');
-    return;
-  }
-
+  console.log('=== joinGroup START ===');
   try {
-    const response = await fetchJSON('/api/v1/groups/join', {
+    event.preventDefault();
+    
+    const input = document.getElementById('inviteCode');
+    if (!input) {
+      alert('Champ code non trouvé');
+      return;
+    }
+    
+    const code = input.value.trim();
+    console.log('Code saisi:', code);
+    
+    if (!code) {
+      alert('Veuillez saisir un code');
+      return;
+    }
+    
+    // Appel API simple
+    const token = localStorage.getItem('userToken');
+    const response = await fetch('/api/v1/groups/join', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invite_code: inviteCode })
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Token': token
+      },
+      body: JSON.stringify({ invite_code: code })
     });
-      
-    if (response.success) {
-      alert('Vous avez rejoint le groupe avec succès !');
+    
+    const data = await response.json();
+    console.log('API Response:', data);
+    
+    if (response.ok && data.success) {
+      alert('Groupe rejoint avec succès !');
+      // Fermer le dropdown
       document.getElementById('joinDropdown').classList.remove('show');
       document.getElementById('joinForm').reset();
-      loadGroups();
+      // Recharger les clubs
+      location.reload();
     } else {
-      alert(response.error || 'Erreur lors de l\'ajout au groupe');
+      alert('Erreur: ' + (data.error || 'Code invalide'));
     }
+    
   } catch (error) {
-    console.error('Join group error:', error);
-    alert('Erreur de connexion. Veuillez réessayer.');
+    console.error('Error in joinGroup:', error);
+    alert('Erreur de connexion: ' + error.message);
   }
+  console.log('=== joinGroup END ===');
 };
 
 function groupCard(g) {
