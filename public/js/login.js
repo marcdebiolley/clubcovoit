@@ -1,25 +1,34 @@
-function setUserToken(token) { localStorage.setItem('userToken', token); }
-function getUserToken() { return localStorage.getItem('userToken'); }
+// Utilise les utilitaires communs
+const { Auth, API, UI, Form } = window.ClubCovoit;
 
-if (getUserToken()) {
-  window.location.href = '/index.html';
+// Rediriger si déjà connecté
+if (Auth.isLoggedIn()) {
+  URL.redirect('/index.html');
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  const formData = Form.getData(e.target);
+  
+  if (!Form.isValidEmail(formData.email)) {
+    UI.showError('Email invalide');
+    return;
+  }
+  
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  UI.setLoading(submitBtn, true);
+  
   try {
-    const res = await fetch('/api/v1/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+    const data = await API.post('/auth/login', {
+      email: formData.email.trim(),
+      password: formData.password
     });
-    if (!res.ok) throw new Error('LOGIN_FAILED');
-    const data = await res.json();
-    setUserToken(data.token);
-    window.location.href = '/index.html';
-  } catch (e) {
-    alert('Identifiants invalides');
+    
+    Auth.setToken(data.token);
+    URL.redirect('/index.html');
+  } catch (error) {
+    UI.showError('Identifiants invalides');
+  } finally {
+    UI.setLoading(submitBtn, false);
   }
 });
