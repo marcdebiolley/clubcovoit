@@ -9,23 +9,322 @@
   <link rel="stylesheet" href="/css/forms.css" />
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .about-hero {
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: white;
+      text-align: center;
+      padding: 80px 20px;
+      margin: -20px -20px 40px -20px;
+    }
+    .about-hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: white;
+    }
+    .about-hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin: 40px 0;
+    }
+    .principle-card {
+      padding: 30px;
+      border-left: 4px solid;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    .principle-card.simplicity {
+      border-left-color: #6366f1;
+    }
+    .principle-card.efficiency {
+      border-left-color: #06b6d4;
+    }
+    .principle-card.transparency {
+      border-left-color: #8b5cf6;
+    }
+    .principle-card h3 {
+      color: #6366f1;
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+    .creator-section {
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: white;
+      text-align: center;
+      padding: 60px 30px;
+      border-radius: 16px;
+      margin: 60px 0;
+    }
+    .creator-avatar {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .creator-section h3 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: white;
+    }
+    .creator-section .role {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 16px;
+    }
+    .comparison-section {
+      margin: 60px 0;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+      margin: 40px 0;
+    }
+    .comparison-card {
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .comparison-card.before {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+    .comparison-card.after {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+    .comparison-card h4 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+    }
+    .comparison-card.before h4 {
+      color: #dc2626;
+    }
+    .comparison-card.after h4 {
+      color: #16a34a;
+    }
+    .comparison-emoji {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .comparison-arrow {
+      font-size: 2rem;
+      color: #6366f1;
+    }
+    .comparison-list {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
+    .comparison-list li {
+      padding: 8px 0;
+      position: relative;
+      padding-left: 20px;
+    }
+    .comparison-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+    .comparison-card.before li::before {
+      color: #dc2626;
+    }
+    .comparison-card.after li::before {
+      color: #16a34a;
+    }
+    .cta-section {
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: white;
+      text-align: center;
+      padding: 60px 30px;
+      border-radius: 16px;
+      margin: 60px 0;
+    }
+    .cta-section h2 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      color: white;
+    }
+    .cta-section p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+    .cta-button {
+      background: white;
+      color: #6366f1;
+      padding: 16px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+      color: #6366f1;
+    }
+    .footer-section {
+      background: #1f2937;
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      margin: 60px -20px -20px -20px;
+    }
+    .footer-section p {
+      margin-bottom: 10px;
+      color: #d1d5db;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      color: #06b6d4;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+      .about-hero h1 {
+        font-size: 2rem;
+      }
+      .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .comparison-arrow {
+        transform: rotate(90deg);
+      }
+      .principles-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="app-navbar"></div>
+  
+  <!-- Hero Section -->
+  <div class="about-hero">
+    <h1>Simplifier le covoiturage pour les clubs</h1>
+    <p>Organiser des trajets efficacement, c'est notre mission</p>
+  </div>
+
   <div class="container">
-    <div class="header">
-      <h1>À propos</h1>
-      <p>Présentation du projet, de la mission et de l'équipe (contenu à venir)</p>
-    </div>
+    <!-- Mission Section -->
+    <section>
+      <h2 style="color: #6366f1; font-size: 2rem; margin-bottom: 20px;">Notre Mission</h2>
+      <p style="font-size: 1.1rem; line-height: 1.6; color: #4b5563;">
+        Simplifier l'organisation du covoiturage pour les clubs et associations. ClubCovoit propose une plateforme intuitive qui automatise la coordination entre passagers et conducteurs, sans complications.
+      </p>
+    </section>
 
-    <div class="card">
-      <h2>Notre mission</h2>
-      <p class="secondary">Rendre l'organisation du covoiturage simple, rapide et efficace pour les clubs et associations.</p>
-    </div>
+    <!-- Principles Section -->
+    <section style="margin: 60px 0;">
+      <h2 style="color: #6366f1; font-size: 2rem; margin-bottom: 30px;">Nos Principes</h2>
+      <div class="principles-grid">
+        <div class="principle-card simplicity">
+          <h3>Simplicité</h3>
+          <p>Une plateforme intuitive, facile à utiliser pour tous les membres du club, sans formation nécessaire.</p>
+        </div>
+        <div class="principle-card efficiency">
+          <h3>Efficacité</h3>
+          <p>Automatiser l'assignation des trajets pour gagner du temps et réduire les erreurs.</p>
+        </div>
+        <div class="principle-card transparency">
+          <h3>Transparence</h3>
+          <p>Vos données vous appartiennent. Contrôle total sur les informations de votre club.</p>
+        </div>
+      </div>
+    </section>
 
-    <div class="card">
-      <h2>Qui sommes-nous ?</h2>
-      <p class="secondary">Section équipe, valeurs et histoire (vous pourrez éditer ce contenu).</p>
+    <!-- About Section -->
+    <section style="margin: 60px 0;">
+      <h2 style="color: #6366f1; font-size: 2rem; margin-bottom: 30px;">À Propos</h2>
+      <p style="font-size: 1.1rem; line-height: 1.6; color: #4b5563; margin-bottom: 40px;">
+        ClubCovoit est un projet créé par Marco, développeur web spécialisé dans le design d'interfaces modernes et l'expérience utilisateur. L'objectif : proposer une solution simple et efficace pour gérer le covoiturage au sein des clubs.
+      </p>
+      
+      <div class="creator-section">
+        <div class="creator-avatar">👨‍💻</div>
+        <h3>Marco</h3>
+        <p class="role">Créateur & Développeur</p>
+        <p>Développeur web avec expérience en design d'interfaces, développement frontend et backend. Passionné par les expériences utilisateur claires et efficaces.</p>
+      </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison-section">
+      <h2 style="color: #6366f1; font-size: 2rem; margin-bottom: 30px;">Pourquoi ClubCovoit ?</h2>
+      
+      <div class="comparison-grid">
+        <div class="comparison-card before">
+          <div class="comparison-emoji">😤</div>
+          <h4>Avant</h4>
+          <ul class="comparison-list">
+            <li>Listes Excel ou papier</li>
+            <li>Assignation manuelle</li>
+            <li>Heures de coordination</li>
+            <li>Erreurs et oublis</li>
+            <li>Stress et frustration</li>
+          </ul>
+        </div>
+        
+        <div class="comparison-arrow">→</div>
+        
+        <div class="comparison-card after">
+          <div class="comparison-emoji">✨</div>
+          <h4>Avec ClubCovoit</h4>
+          <ul class="comparison-list">
+            <li>Plateforme centralisée</li>
+            <li>Assignation automatique</li>
+            <li>Quelques clics seulement</li>
+            <li>Zéro erreur</li>
+            <li>Sérénité et efficacité</li>
+          </ul>
+        </div>
+      </div>
+      
+      <p style="text-align: center; font-size: 1.1rem; color: #4b5563; margin-top: 40px;">
+        ClubCovoit a été créée pour que les responsables de clubs se concentrent sur ce qui compte vraiment : organiser un super événement, pas gérer des listes de trajets.
+      </p>
+    </section>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <h2>Commencer avec ClubCovoit</h2>
+      <p>Gérez vos trajets simplement et efficacement</p>
+      <a href="/index.html" class="cta-button">Retourner à l'accueil</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <p>© 2025 ClubCovoit. Créé avec ❤️ pour les clubs et associations.</p>
+    <div class="footer-links">
+      <a href="/index.html">Accueil</a>
+      <a href="/about.html">À Propos</a>
+      <a href="/contact.html">Contact</a>
     </div>
   </div>
 
