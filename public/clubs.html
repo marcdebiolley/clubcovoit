@@ -20,18 +20,16 @@
       <p class="hero-subtitle">Gérez vos clubs et accédez à leurs événements</p>
     </section>
     <div class="page-header">
+
       <div class="nav">
-        <a class="btn" href="/index.html">← Accueil</a>
-      </div>
-      <div class="nav">
-        <a class="btn" href="/club-create.html">➕ Créer un nouveau club</a>
+        <a class="btn btn-primary" href="/club-create.html">➕ Créer un nouveau club</a>
         <div class="join-dropdown">
           <button class="btn btn-secondary" onclick="toggleJoinDropdown()">🔗 Rejoindre avec un code</button>
           <div id="joinDropdown" class="dropdown-content">
             <form id="joinForm" onsubmit="joinGroup(event)">
               <input type="text" id="inviteCode" name="inviteCode" required 
-                     placeholder="Code d'invitation" class="form-control-small">
-              <button type="submit" class="btn btn-primary btn-small">Rejoindre</button>
+                     placeholder="Code d'invitation" class="form-control">
+              <button type="submit" class="btn btn-primary">Rejoindre</button>
             </form>
           </div>
         </div>

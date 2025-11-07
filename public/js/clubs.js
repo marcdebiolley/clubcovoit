@@ -44,7 +44,7 @@ function groupCard(g) {
       <div class="text-secondary">${desc || 'Aucune description'}</div>
       ${statsRow}
       <div class="btn-row">
-        <a class="btn btn-small" href="/club-detail.html?id=${g.id}">Voir le club</a>
+        <a class="btn btn-primary" href="/club-detail.html?id=${g.id}">Voir le club</a>
       </div>
     </div>
   `;
@@ -88,7 +88,7 @@ function rideRow(r) {
       <div>${dateStr}</div>
       <div>${r.origin} → ${r.destination}</div>
       <div class="btn-row">
-        <a class="btn btn-small" href="/ride.html?id=${r.id}">Voir</a>
+        <a class="btn btn-primary" href="/ride.html?id=${r.id}">Voir</a>
       </div>
     </div>
   `;
@@ -101,7 +101,7 @@ function memberCard(m, isOwnerView, groupId) {
   if (isOwnerView) {
     const toggleTo = m.role === 'owner' ? 'member' : 'owner';
     const label = m.role === 'owner' ? 'Retirer propriétaire' : 'Nommer propriétaire';
-    actions = `<button class="btn btn-small" data-role="${toggleTo}" data-user="${m.id}" data-group="${groupId}">${label}</button>`;
+    actions = `<button class="btn btn-secondary" data-role="${toggleTo}" data-user="${m.id}" data-group="${groupId}">${label}</button>`;
   }
   return `
     <div class="car-card">
