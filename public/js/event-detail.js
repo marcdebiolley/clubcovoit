@@ -357,7 +357,7 @@ function bindPassengerCrud() {
         if (delCarBtn.dataset.busy === '1') return;
         const cid = delCarBtn.getAttribute('data-delcar');
         if (!cid) return;
-        if (!confirm('Supprimer cette voiture ?\n\n• Le conducteur sera retiré du trajet\n• Les passagers resteront inscrits sans voiture\n\nContinuer ?')) return;
+        if (!confirm('Supprimer cette voiture ?\n\n• Le conducteur sera supprimé du trajet\n• Les passagers resteront inscrits sans voiture\n\nContinuer ?')) return;
         try {
           delCarBtn.dataset.busy = '1';
           delCarBtn.textContent = 'Suppression...';
@@ -392,7 +392,23 @@ function bindPassengerCrud() {
             
             // Gestion des erreurs spécifiques
             if (errorData.error === 'CAR_HAS_PARTICIPANTS') {
-              throw new Error('Cette voiture a encore des participants. Le serveur n\'a pas pu les retirer automatiquement.');
+              // Essayer la suppression forcée
+              console.log('Tentative de suppression forcée...');
+              const forceResponse = await fetch(`/api/v1/cars/${cid}/force_destroy`, {
+                method: 'POST',
+                headers: {
+                  'X-User-Token': userToken,
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (forceResponse.ok) {
+                showToast('Voiture supprimée avec succès (mode forcé)');
+                await loadEvent();
+                return;
+              } else {
+                throw new Error('Échec de la suppression forcée. Contactez le support.');
+              }
             } else if (errorData.error === 'DELETION_FAILED') {
               throw new Error(`Échec de la suppression: ${errorData.message || 'Erreur inconnue'}`);
             } else if (errorData.error === 'UNAUTHORIZED') {

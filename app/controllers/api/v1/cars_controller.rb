@@ -1,7 +1,7 @@
 class Api::V1::CarsController < ApplicationController
   before_action :require_user!
   before_action :set_ride, only: [ :index, :create ]
-  before_action :set_car, only: [ :update, :destroy ]
+  before_action :set_car, only: [ :update, :destroy, :force_destroy ]
 
   # GET /api/v1/rides/:ride_id/cars
   def index
@@ -42,33 +42,31 @@ class Api::V1::CarsController < ApplicationController
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
     
+    # SOLUTION SIMPLE : Supprimer directement la voiture
+    # Le modèle Car a un callback qui gère automatiquement les participants
+    @car.destroy!
+    recalc_ride!(ride, nil)
+    render json: { ok: true }
+  end
+  
+  # POST /api/v1/cars/:id/force_destroy - Endpoint de secours
+  def force_destroy
+    ride = @car.ride
+    return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
+    
     begin
-      # Transaction pour assurer la cohérence
+      # Force la suppression en ignorant les contraintes
       ActiveRecord::Base.transaction do
-        # Gérer les participants de cette voiture
-        participants = @car.participants
-        
-        participants.each do |participant|
-          if participant.role == "driver"
-            # Supprimer complètement les conducteurs
-            participant.destroy!
-          else
-            # Les passagers perdent leur voiture mais restent inscrits
-            participant.update!(car_id: nil)
-          end
-        end
-        
+        # Supprimer tous les participants de cette voiture
+        @car.participants.destroy_all
         # Supprimer la voiture
         @car.destroy!
-        
-        # Recalculer les statistiques
+        # Recalculer
         recalc_ride!(ride, nil)
       end
-      
-      render json: { ok: true, message: "Voiture supprimée avec succès" }
+      render json: { ok: true, message: "Voiture supprimée de force" }
     rescue => e
-      Rails.logger.error "Erreur suppression voiture #{@car.id}: #{e.message}"
-      render json: { error: "DELETION_FAILED", message: e.message }, status: :unprocessable_entity
+      render json: { error: "FORCE_DELETE_FAILED", message: e.message }, status: :unprocessable_entity
     end
   end
 

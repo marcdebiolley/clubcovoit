@@ -39,7 +39,9 @@ Rails.application.routes.draw do
       get  "me", to: "me#show"
       patch "me", to: "me#update"
 
-      resources :cars, only: [ :update, :destroy ]
+      resources :cars, only: [ :update, :destroy ] do
+        post :force_destroy, on: :member
+      end
       resources :participants, only: [ :destroy, :update ]
 
       resources :groups, only: [ :index, :create, :show, :update, :destroy ] do
