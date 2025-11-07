@@ -1,20 +1,100 @@
-// Utilise les utilitaires communs
-const { Auth, API, UI, Format, URL, Components } = window.ClubCovoit;
+// Utilise les utilitaires communs avec fallback
+const ClubCovoit = window.ClubCovoit || {};
+const { Auth, API, UI, Format, URL, Components } = ClubCovoit;
+
+// Fallback functions si utils.js n'est pas chargé
+const getUserToken = () => localStorage.getItem('userToken');
+const fetchJSON = async (url, options = {}) => {
+  const headers = options.headers || {};
+  headers['X-User-Token'] = getUserToken();
+  const res = await fetch(url, { ...options, headers });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+};
+
+// Vérification d'auth avec fallback
+if (!getUserToken()) { 
+  window.location.href = '/index.html'; 
+}
 
 const listEl = document.getElementById('clubsList');
-const groupIdParam = URL.getParam('id');
+const groupIdParam = new URLSearchParams(location.search).get('id');
+
+// Déclarer les fonctions globales dès le début pour les onclick HTML
+window.toggleJoinDropdown = function() {
+  console.log('toggleJoinDropdown called from window'); // Debug
+  const dropdown = document.getElementById('joinDropdown');
+  if (!dropdown) {
+    console.error('Dropdown element not found');
+    return;
+  }
+  
+  const isVisible = dropdown.classList.contains('show');
+  console.log('Dropdown visible:', isVisible); // Debug
+  
+  if (isVisible) {
+    dropdown.classList.remove('show');
+    console.log('Hiding dropdown');
+  } else {
+    dropdown.classList.add('show');
+    console.log('Showing dropdown');
+    setTimeout(() => {
+      const input = document.getElementById('inviteCode');
+      if (input) input.focus();
+    }, 100);
+  }
+};
+
+window.joinGroup = async function(event) {
+  console.log('joinGroup called from window'); // Debug
+  event.preventDefault();
+  
+  const inviteCodeInput = document.getElementById('inviteCode');
+  if (!inviteCodeInput) {
+    console.error('Invite code input not found');
+    return;
+  }
+  
+  const inviteCode = inviteCodeInput.value.trim();
+  console.log('Invite code:', inviteCode); // Debug
+  
+  if (!inviteCode) {
+    alert('Veuillez entrer un code d\'invitation');
+    return;
+  }
+
+  try {
+    const response = await fetchJSON('/api/v1/groups/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invite_code: inviteCode })
+    });
+      
+    if (response.success) {
+      alert('Vous avez rejoint le groupe avec succès !');
+      document.getElementById('joinDropdown').classList.remove('show');
+      document.getElementById('joinForm').reset();
+      loadGroups();
+    } else {
+      alert(response.error || 'Erreur lors de l\'ajout au groupe');
+    }
+  } catch (error) {
+    console.error('Join group error:', error);
+    alert('Erreur de connexion. Veuillez réessayer.');
+  }
+};
 
 function groupCard(g) {
   const type = g.kind || g.type || 'Club';
-  const ownerBadge = Components.ownerBadge(g.role === 'owner');
-  const desc = Format.truncate(g.description || '', 160);
+  const ownerBadge = g.role === 'owner' ? '<span class="badge badge-owner">propriétaire</span>' : '';
+  const desc = truncate(g.description || '', 160);
   const eventsCount = g.events_count ?? (g.rides ? g.rides.length : null);
   const membersCount = g.members_count ?? (g.members ? g.members.length : null);
   
   const statsRow = `
     <div class="stats mt-8">
-      ${Components.statCard(eventsCount, 'Événements')}
-      ${Components.statCard(membersCount, 'Membres')}
+      <div class="stat-card"><div class="stat-number">${eventsCount != null ? eventsCount : '-'}</div><div class="stat-label">Événements</div></div>
+      <div class="stat-card"><div class="stat-number">${membersCount != null ? membersCount : '-'}</div><div class="stat-label">Membres</div></div>
     </div>`;
     
   return `
@@ -25,14 +105,21 @@ function groupCard(g) {
       </div>
       <div class="text-secondary">${desc || 'Aucune description'}</div>
       ${statsRow}
-      ${Components.buttonRow([Components.button('Voir le club', `/club-detail.html?id=${g.id}`)])}
+      <div class="btn-row">
+        <a class="btn btn-small" href="/club-detail.html?id=${g.id}">Voir le club</a>
+      </div>
     </div>
   `;
 }
 
+function truncate(text, len = 140) {
+  if (!text) return '';
+  return text.length > len ? text.slice(0, len - 1) + '…' : text;
+}
+
 async function loadGroups() {
   try {
-    const groups = await API.get('/groups');
+    const groups = API ? await API.get('/groups') : await fetchJSON('/api/v1/groups');
     if (!groups || groups.length === 0) {
       listEl.innerHTML = `
         <div class="card grid-span-all text-center">
@@ -44,21 +131,31 @@ async function loadGroups() {
     }
     listEl.innerHTML = groups.map(groupCard).join('');
   } catch (error) {
-    UI.showError('Impossible de charger les clubs');
+    console.error('Erreur chargement clubs:', error);
+    if (UI && UI.showError) {
+      UI.showError('Impossible de charger les clubs');
+    } else {
+      alert('Impossible de charger les clubs');
+    }
   }
 }
 
 // Creation/join sont déplacés vers club-create.html désormais
 
 function rideRow(r) {
+  const dt = new Date(r.date + 'T' + (r.time || '00:00'));
+  const dateStr = dt.toLocaleDateString('fr-FR') + (r.time ? ' à ' + r.time : '');
+  
   return `
     <div class="car-card">
       <div class="car-header">
         <div class="car-driver">${r.title}</div>
       </div>
-      <div>${Format.datetime(r.date, r.time)}</div>
+      <div>${dateStr}</div>
       <div>${r.origin} → ${r.destination}</div>
-      ${Components.buttonRow([Components.button('Voir', `/ride.html?id=${r.id}`)])}
+      <div class="btn-row">
+        <a class="btn btn-small" href="/ride.html?id=${r.id}">Voir</a>
+      </div>
     </div>
   `;
 }
@@ -88,7 +185,7 @@ function memberCard(m, isOwnerView, groupId) {
 
 async function loadGroupDetail(id) {
   try {
-    const g = await API.get(`/groups/${id}`);
+    const g = API ? await API.get(`/groups/${id}`) : await fetchJSON(`/api/v1/groups/${id}`);
     // Hide list/create/join cards
     if (myGroupsCard) myGroupsCard.style.display = 'none';
     if (createGroupCard) createGroupCard.style.display = 'none';
@@ -138,15 +235,31 @@ async function loadGroupDetail(id) {
         const userId = btn.getAttribute('data-user');
         const role = btn.getAttribute('data-role');
         try {
-          await API.put(`/groups/${g.id}/members/${userId}`, { role });
+          if (API) {
+            await API.put(`/groups/${g.id}/members/${userId}`, { role });
+          } else {
+            await fetchJSON(`/api/v1/groups/${g.id}/members/${userId}`, {
+              method: 'PATCH', 
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ role })
+            });
+          }
           await loadGroupDetail(g.id);
         } catch { 
-          UI.showError('Modification impossible'); 
+          if (UI && UI.showError) {
+            UI.showError('Modification impossible');
+          } else {
+            alert('Modification impossible');
+          }
         }
       });
     });
   } catch (e) {
-    UI.showError('Groupe introuvable');
+    if (UI && UI.showError) {
+      UI.showError('Groupe introuvable');
+    } else {
+      alert('Groupe introuvable');
+    }
   }
 }
 
@@ -155,7 +268,7 @@ async function loadMyUpcoming() {
   try {
     const box = document.getElementById('myUpcoming');
     if (!box) return;
-    const mine = await API.get('/my_rides');
+    const mine = API ? await API.get('/my_rides') : await fetchJSON('/api/v1/my_rides');
     const now = new Date();
     const all = [].concat(mine.as_driver || [], mine.as_passenger || []);
     const upcoming = all.filter(r => {
@@ -166,7 +279,9 @@ async function loadMyUpcoming() {
 }
 
 function rideItem(r) {
-  const when = Format.datetime(r.date, r.time);
+  const dt = new Date(r.date + 'T' + (r.time || '00:00'));
+  const when = dt.toLocaleDateString('fr-FR') + (r.time ? ' à ' + r.time : '');
+  
   return `
     <div class="car-card">
       <div class="car-header">
@@ -181,47 +296,15 @@ function rideItem(r) {
   `;
 }
 
-// Fonctions pour le dropdown de rejoindre un groupe
-function toggleJoinDropdown() {
-  const dropdown = document.getElementById('joinDropdown');
-  const isVisible = dropdown.classList.contains('show');
-  
-  if (isVisible) {
-    dropdown.classList.remove('show');
-  } else {
-    dropdown.classList.add('show');
-    setTimeout(() => {
-      document.getElementById('inviteCode')?.focus();
-    }, 100);
-  }
-}
-
+// Fonction helper pour fermer le dropdown
 function hideJoinDropdown() {
   const dropdown = document.getElementById('joinDropdown');
-  dropdown.classList.remove('show');
-  document.getElementById('joinForm')?.reset();
-}
-
-async function joinGroup(event) {
-  event.preventDefault();
-  const inviteCode = document.getElementById('inviteCode').value.trim();
-  
-  if (!inviteCode) {
-    UI.showError('Veuillez entrer un code d\'invitation');
-    return;
+  if (dropdown) {
+    dropdown.classList.remove('show');
   }
-
-  try {
-    const response = await API.post('/groups/join', { invite_code: inviteCode });
-    if (response.success) {
-      UI.showSuccess('Vous avez rejoint le groupe avec succès !');
-      hideJoinDropdown();
-      loadGroups();
-    } else {
-      UI.showError(response.error || 'Erreur lors de l\'ajout au groupe');
-    }
-  } catch (error) {
-    UI.showError('Erreur de connexion. Veuillez réessayer.');
+  const form = document.getElementById('joinForm');
+  if (form) {
+    form.reset();
   }
 }
 
@@ -235,9 +318,7 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// Rendre les fonctions globales pour les onclick dans le HTML
-window.toggleJoinDropdown = toggleJoinDropdown;
-window.joinGroup = joinGroup;
+// Les fonctions sont déjà déclarées globalement au début du script
 
 // Initialisation
 if (groupIdParam) {
