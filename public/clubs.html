@@ -39,14 +39,6 @@
     </div>
     <div id="clubsList" class="clubs-grid"></div>
 
-    <!-- Test temporaire -->
-    <div style="background: yellow; padding: 10px; margin: 10px 0;">
-      <p>TEST DEBUG:</p>
-      <button onclick="console.log('Test button clicked'); alert('Test OK');">Test Simple</button>
-      <button onclick="window.toggleJoinDropdown()">Test Dropdown</button>
-      <p id="debug-info"></p>
-    </div>
-
     <section class="form-section" style="margin-top:24px">
       <h2>Mes prochains trajets</h2>
       <div id="myUpcoming" class="clubs-grid"></div>
@@ -55,23 +47,15 @@
 
 
   <script>
-    // FONCTIONS DIRECTEMENT DANS LE HTML POUR ÉVITER LES PROBLÈMES DE CHARGEMENT
-    console.log('=== INLINE FUNCTIONS START ===');
-    
+    // Fonctions pour le dropdown de rejoindre un groupe
     window.toggleJoinDropdown = function() {
-      console.log('=== INLINE toggleJoinDropdown ===');
       const dropdown = document.getElementById('joinDropdown');
-      if (!dropdown) {
-        alert('Dropdown non trouvé');
-        return;
-      }
+      if (!dropdown) return;
       
       if (dropdown.classList.contains('show')) {
         dropdown.classList.remove('show');
-        console.log('Dropdown fermé');
       } else {
         dropdown.classList.add('show');
-        console.log('Dropdown ouvert');
         setTimeout(() => {
           const input = document.getElementById('inviteCode');
           if (input) input.focus();
@@ -80,14 +64,13 @@
     };
     
     window.joinGroup = async function(event) {
-      console.log('=== INLINE joinGroup ===');
       event.preventDefault();
       
       const input = document.getElementById('inviteCode');
       const code = input ? input.value.trim() : '';
       
       if (!code) {
-        alert('Veuillez saisir un code');
+        alert('Veuillez saisir un code d\'invitation');
         return;
       }
       
@@ -105,45 +88,21 @@
         const data = await response.json();
         
         if (response.ok && data.success) {
-          alert('Groupe rejoint !');
+          alert('Vous avez rejoint le groupe avec succès !');
           document.getElementById('joinDropdown').classList.remove('show');
           document.getElementById('joinForm').reset();
           location.reload();
         } else {
-          alert('Erreur: ' + (data.error || 'Code invalide'));
+          alert('Erreur: ' + (data.error || 'Code d\'invitation invalide'));
         }
       } catch (error) {
-        alert('Erreur de connexion');
+        alert('Erreur de connexion. Veuillez réessayer.');
       }
     };
-    
-    console.log('=== INLINE FUNCTIONS READY ===');
   </script>
 
   <script src="/js/header.js?v=3"></script>
   <script src="/js/utils.js?v=3"></script>
   <script src="/js/clubs.js?v=3"></script>
-  
-  <script>
-    // Script de diagnostic
-    setTimeout(() => {
-      const debugInfo = document.getElementById('debug-info');
-      if (debugInfo) {
-        let info = '';
-        info += 'toggleJoinDropdown: ' + (typeof window.toggleJoinDropdown) + '<br>';
-        info += 'joinGroup: ' + (typeof window.joinGroup) + '<br>';
-        info += 'ClubCovoit: ' + (typeof window.ClubCovoit) + '<br>';
-        info += 'Dropdown element: ' + (document.getElementById('joinDropdown') ? 'found' : 'not found') + '<br>';
-        debugInfo.innerHTML = info;
-      }
-      
-      console.log('=== DIAGNOSTIC ===');
-      console.log('toggleJoinDropdown:', typeof window.toggleJoinDropdown);
-      console.log('joinGroup:', typeof window.joinGroup);
-      console.log('ClubCovoit:', typeof window.ClubCovoit);
-      console.log('Dropdown element:', document.getElementById('joinDropdown'));
-      console.log('==================');
-    }, 1000);
-  </script>
 </body>
 </html>

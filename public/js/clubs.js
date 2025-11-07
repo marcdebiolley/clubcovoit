@@ -1,7 +1,4 @@
-// VERSION SIMPLIFIÉE SANS DÉPENDANCES
-console.log('=== CLUBS.JS LOADING ===');
-
-// Fonctions de base
+// Fonctions utilitaires
 function getUserToken() { 
   return localStorage.getItem('userToken'); 
 }
@@ -15,111 +12,15 @@ function fetchJSON(url, options = {}) {
   });
 }
 
-// Vérification d'auth
+// Vérification d'authentification
 if (!getUserToken()) { 
   window.location.href = '/index.html'; 
 }
 
-console.log('=== AUTH CHECK PASSED ===');
-
 const listEl = document.getElementById('clubsList');
 const groupIdParam = new URLSearchParams(location.search).get('id');
 
-// VERSION SIMPLE - Fonctions globales de base
-window.toggleJoinDropdown = function() {
-  console.log('=== toggleJoinDropdown START ===');
-  try {
-    const dropdown = document.getElementById('joinDropdown');
-    console.log('Dropdown element:', dropdown);
-    
-    if (!dropdown) {
-      console.error('Dropdown not found!');
-      alert('Erreur: Dropdown non trouvé');
-      return;
-    }
-    
-    const hasShow = dropdown.classList.contains('show');
-    console.log('Has show class:', hasShow);
-    
-    if (hasShow) {
-      dropdown.classList.remove('show');
-      console.log('Removed show class');
-    } else {
-      dropdown.classList.add('show');
-      console.log('Added show class');
-      
-      // Focus sur le champ
-      setTimeout(() => {
-        const input = document.getElementById('inviteCode');
-        if (input) {
-          input.focus();
-          console.log('Focused input');
-        }
-      }, 200);
-    }
-  } catch (error) {
-    console.error('Error in toggleJoinDropdown:', error);
-    alert('Erreur: ' + error.message);
-  }
-  console.log('=== toggleJoinDropdown END ===');
-};
-
-window.joinGroup = async function(event) {
-  console.log('=== joinGroup START ===');
-  try {
-    event.preventDefault();
-    
-    const input = document.getElementById('inviteCode');
-    if (!input) {
-      alert('Champ code non trouvé');
-      return;
-    }
-    
-    const code = input.value.trim();
-    console.log('Code saisi:', code);
-    
-    if (!code) {
-      alert('Veuillez saisir un code');
-      return;
-    }
-    
-    // Appel API simple
-    const token = localStorage.getItem('userToken');
-    const response = await fetch('/api/v1/groups/join', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Token': token
-      },
-      body: JSON.stringify({ invite_code: code })
-    });
-    
-    const data = await response.json();
-    console.log('API Response:', data);
-    
-    if (response.ok && data.success) {
-      alert('Groupe rejoint avec succès !');
-      // Fermer le dropdown
-      document.getElementById('joinDropdown').classList.remove('show');
-      document.getElementById('joinForm').reset();
-      // Recharger les clubs
-      location.reload();
-    } else {
-      alert('Erreur: ' + (data.error || 'Code invalide'));
-    }
-    
-  } catch (error) {
-    console.error('Error in joinGroup:', error);
-    alert('Erreur de connexion: ' + error.message);
-  }
-  console.log('=== joinGroup END ===');
-};
-
-// Vérifier que les fonctions sont bien assignées
-console.log('=== FUNCTIONS ASSIGNED ===');
-console.log('window.toggleJoinDropdown:', typeof window.toggleJoinDropdown);
-console.log('window.joinGroup:', typeof window.joinGroup);
-console.log('=== FUNCTIONS CHECK DONE ===');
+// Note: Les fonctions dropdown sont maintenant définies directement dans le HTML
 
 function groupCard(g) {
   const type = g.kind || g.type || 'Club';
@@ -156,7 +57,7 @@ function truncate(text, len = 140) {
 
 async function loadGroups() {
   try {
-    const groups = API ? await API.get('/groups') : await fetchJSON('/api/v1/groups');
+    const groups = await fetchJSON('/api/v1/groups');
     if (!groups || groups.length === 0) {
       listEl.innerHTML = `
         <div class="card grid-span-all text-center">
@@ -169,11 +70,7 @@ async function loadGroups() {
     listEl.innerHTML = groups.map(groupCard).join('');
   } catch (error) {
     console.error('Erreur chargement clubs:', error);
-    if (UI && UI.showError) {
-      UI.showError('Impossible de charger les clubs');
-    } else {
-      alert('Impossible de charger les clubs');
-    }
+    alert('Impossible de charger les clubs');
   }
 }
 
@@ -305,7 +202,7 @@ async function loadMyUpcoming() {
   try {
     const box = document.getElementById('myUpcoming');
     if (!box) return;
-    const mine = API ? await API.get('/my_rides') : await fetchJSON('/api/v1/my_rides');
+    const mine = await fetchJSON('/api/v1/my_rides');
     const now = new Date();
     const all = [].concat(mine.as_driver || [], mine.as_passenger || []);
     const upcoming = all.filter(r => {
@@ -333,29 +230,15 @@ function rideItem(r) {
   `;
 }
 
-// Fonction helper pour fermer le dropdown
-function hideJoinDropdown() {
-  const dropdown = document.getElementById('joinDropdown');
-  if (dropdown) {
-    dropdown.classList.remove('show');
-  }
-  const form = document.getElementById('joinForm');
-  if (form) {
-    form.reset();
-  }
-}
-
-// Event listeners
+// Event listener pour fermer le dropdown en cliquant à l'extérieur
 document.addEventListener('click', function(event) {
   const dropdown = document.getElementById('joinDropdown');
   const button = event.target.closest('.join-dropdown');
   
   if (!button && dropdown && dropdown.classList.contains('show')) {
-    hideJoinDropdown();
+    dropdown.classList.remove('show');
   }
 });
-
-// Les fonctions sont déjà déclarées globalement au début du script
 
 // Initialisation
 if (groupIdParam) {
