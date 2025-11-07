@@ -1,5 +1,73 @@
 function getUserToken() { return localStorage.getItem('userToken'); }
 
+// Fonction temporaire pour retirer tous les participants d'une voiture puis la supprimer
+async function removeAllParticipantsAndDeleteCar(carId) {
+  try {
+    console.log('Retrait des participants de la voiture:', carId);
+    
+    // D'abord, récupérer les participants de cette voiture
+    const eventResponse = await fetch(`/api/v1/events/${eventIdParam}`, {
+      headers: { 'X-User-Token': getUserToken() }
+    });
+    const eventData = await eventResponse.json();
+    
+    // Trouver la voiture et ses participants
+    const car = eventData.cars?.find(c => c.id == carId);
+    if (!car) {
+      throw new Error('Voiture non trouvée');
+    }
+    
+    // Retirer tous les participants de cette voiture
+    const participants = eventData.participants?.filter(p => p.car_id == carId) || [];
+    console.log('Participants à retirer:', participants.length);
+    
+    for (const participant of participants) {
+      try {
+        if (participant.role === 'driver') {
+          // Supprimer complètement les conducteurs
+          await fetch(`/api/v1/participants/${participant.id}`, {
+            method: 'DELETE',
+            headers: { 'X-User-Token': getUserToken() }
+          });
+        } else {
+          // Retirer la voiture des passagers (les garder sans voiture)
+          await fetch(`/api/v1/participants/${participant.id}`, {
+            method: 'PATCH',
+            headers: {
+              'X-User-Token': getUserToken(),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ car_id: null })
+          });
+        }
+      } catch (e) {
+        console.warn('Erreur lors du retrait du participant:', participant.id, e);
+      }
+    }
+    
+    // Maintenant supprimer la voiture
+    console.log('Suppression de la voiture après retrait des participants');
+    const deleteResponse = await fetch(`/api/v1/cars/${carId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-User-Token': getUserToken(),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!deleteResponse.ok) {
+      throw new Error('Échec de la suppression de la voiture');
+    }
+    
+    showToast('Voiture et participants supprimés avec succès');
+    await loadEvent();
+    
+  } catch (error) {
+    console.error('Erreur lors de la suppression complète:', error);
+    showToast(`Erreur: ${error.message}`, 'error');
+  }
+}
+
 // Destination marker reference
 let __destMarker = null;
 let __destLngLat = null;
@@ -324,7 +392,14 @@ function bindPassengerCrud() {
             
             // Gestion des erreurs spécifiques
             if (errorData.error === 'CAR_HAS_PARTICIPANTS') {
-              throw new Error('Impossible de supprimer une voiture avec des participants. Retirez d\'abord tous les participants.');
+              // Solution temporaire : proposer de retirer manuellement les participants
+              const retry = confirm('Cette voiture a des participants.\n\nVoulez-vous d\'abord retirer tous les participants puis supprimer la voiture ?\n\n✅ Cliquez OK pour continuer\n❌ Cliquez Annuler pour abandonner');
+              if (retry) {
+                await removeAllParticipantsAndDeleteCar(cid);
+                return;
+              } else {
+                throw new Error('Suppression annulée. La voiture a des participants.');
+              }
             } else if (errorData.error === 'UNAUTHORIZED') {
               throw new Error('Vous n\'avez pas l\'autorisation de supprimer cette voiture.');
             } else {
