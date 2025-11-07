@@ -42,19 +42,34 @@ class Api::V1::CarsController < ApplicationController
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
     
-    # Gérer les participants de cette voiture
-    drivers = @car.participants.where(role: "driver")
-    passengers = @car.participants.where(role: "passenger")
-    
-    # Supprimer complètement les conducteurs (ils ne peuvent pas devenir passagers)
-    drivers.destroy_all
-    
-    # Les passagers deviennent des passagers sans voiture assignée
-    passengers.update_all(car_id: nil)
-    
-    @car.destroy!
-    recalc_ride!(ride, nil)
-    render json: { ok: true }
+    begin
+      # Transaction pour assurer la cohérence
+      ActiveRecord::Base.transaction do
+        # Gérer les participants de cette voiture
+        participants = @car.participants
+        
+        participants.each do |participant|
+          if participant.role == "driver"
+            # Supprimer complètement les conducteurs
+            participant.destroy!
+          else
+            # Les passagers perdent leur voiture mais restent inscrits
+            participant.update!(car_id: nil)
+          end
+        end
+        
+        # Supprimer la voiture
+        @car.destroy!
+        
+        # Recalculer les statistiques
+        recalc_ride!(ride, nil)
+      end
+      
+      render json: { ok: true, message: "Voiture supprimée avec succès" }
+    rescue => e
+      Rails.logger.error "Erreur suppression voiture #{@car.id}: #{e.message}"
+      render json: { error: "DELETION_FAILED", message: e.message }, status: :unprocessable_entity
+    end
   end
 
   private

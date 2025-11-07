@@ -357,7 +357,7 @@ function bindPassengerCrud() {
         if (delCarBtn.dataset.busy === '1') return;
         const cid = delCarBtn.getAttribute('data-delcar');
         if (!cid) return;
-        if (!confirm('Supprimer cette voiture ?\n\n⚠️ Le conducteur sera retiré du trajet.\n✅ Les passagers resteront inscrits mais sans voiture assignée.')) return;
+        if (!confirm('Supprimer cette voiture ?\n\n• Le conducteur sera retiré du trajet\n• Les passagers resteront inscrits sans voiture\n\nContinuer ?')) return;
         try {
           delCarBtn.dataset.busy = '1';
           delCarBtn.textContent = 'Suppression...';
@@ -392,14 +392,9 @@ function bindPassengerCrud() {
             
             // Gestion des erreurs spécifiques
             if (errorData.error === 'CAR_HAS_PARTICIPANTS') {
-              // Solution temporaire : proposer de retirer manuellement les participants
-              const retry = confirm('Cette voiture a des participants.\n\nVoulez-vous d\'abord retirer tous les participants puis supprimer la voiture ?\n\n✅ Cliquez OK pour continuer\n❌ Cliquez Annuler pour abandonner');
-              if (retry) {
-                await removeAllParticipantsAndDeleteCar(cid);
-                return;
-              } else {
-                throw new Error('Suppression annulée. La voiture a des participants.');
-              }
+              throw new Error('Cette voiture a encore des participants. Le serveur n\'a pas pu les retirer automatiquement.');
+            } else if (errorData.error === 'DELETION_FAILED') {
+              throw new Error(`Échec de la suppression: ${errorData.message || 'Erreur inconnue'}`);
             } else if (errorData.error === 'UNAUTHORIZED') {
               throw new Error('Vous n\'avez pas l\'autorisation de supprimer cette voiture.');
             } else {
