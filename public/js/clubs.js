@@ -1,21 +1,26 @@
-// Utilise les utilitaires communs avec fallback
-const ClubCovoit = window.ClubCovoit || {};
-const { Auth, API, UI, Format, URL, Components } = ClubCovoit;
+// VERSION SIMPLIFIÉE SANS DÉPENDANCES
+console.log('=== CLUBS.JS LOADING ===');
 
-// Fallback functions si utils.js n'est pas chargé
-const getUserToken = () => localStorage.getItem('userToken');
-const fetchJSON = async (url, options = {}) => {
+// Fonctions de base
+function getUserToken() { 
+  return localStorage.getItem('userToken'); 
+}
+
+function fetchJSON(url, options = {}) {
   const headers = options.headers || {};
   headers['X-User-Token'] = getUserToken();
-  const res = await fetch(url, { ...options, headers });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-};
+  return fetch(url, { ...options, headers }).then(res => {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  });
+}
 
-// Vérification d'auth avec fallback
+// Vérification d'auth
 if (!getUserToken()) { 
   window.location.href = '/index.html'; 
 }
+
+console.log('=== AUTH CHECK PASSED ===');
 
 const listEl = document.getElementById('clubsList');
 const groupIdParam = new URLSearchParams(location.search).get('id');
@@ -109,6 +114,12 @@ window.joinGroup = async function(event) {
   }
   console.log('=== joinGroup END ===');
 };
+
+// Vérifier que les fonctions sont bien assignées
+console.log('=== FUNCTIONS ASSIGNED ===');
+console.log('window.toggleJoinDropdown:', typeof window.toggleJoinDropdown);
+console.log('window.joinGroup:', typeof window.joinGroup);
+console.log('=== FUNCTIONS CHECK DONE ===');
 
 function groupCard(g) {
   const type = g.kind || g.type || 'Club';

@@ -54,6 +54,72 @@
   </div>
 
 
+  <script>
+    // FONCTIONS DIRECTEMENT DANS LE HTML POUR ÉVITER LES PROBLÈMES DE CHARGEMENT
+    console.log('=== INLINE FUNCTIONS START ===');
+    
+    window.toggleJoinDropdown = function() {
+      console.log('=== INLINE toggleJoinDropdown ===');
+      const dropdown = document.getElementById('joinDropdown');
+      if (!dropdown) {
+        alert('Dropdown non trouvé');
+        return;
+      }
+      
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+        console.log('Dropdown fermé');
+      } else {
+        dropdown.classList.add('show');
+        console.log('Dropdown ouvert');
+        setTimeout(() => {
+          const input = document.getElementById('inviteCode');
+          if (input) input.focus();
+        }, 100);
+      }
+    };
+    
+    window.joinGroup = async function(event) {
+      console.log('=== INLINE joinGroup ===');
+      event.preventDefault();
+      
+      const input = document.getElementById('inviteCode');
+      const code = input ? input.value.trim() : '';
+      
+      if (!code) {
+        alert('Veuillez saisir un code');
+        return;
+      }
+      
+      try {
+        const token = localStorage.getItem('userToken');
+        const response = await fetch('/api/v1/groups/join', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Token': token
+          },
+          body: JSON.stringify({ invite_code: code })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          alert('Groupe rejoint !');
+          document.getElementById('joinDropdown').classList.remove('show');
+          document.getElementById('joinForm').reset();
+          location.reload();
+        } else {
+          alert('Erreur: ' + (data.error || 'Code invalide'));
+        }
+      } catch (error) {
+        alert('Erreur de connexion');
+      }
+    };
+    
+    console.log('=== INLINE FUNCTIONS READY ===');
+  </script>
+
   <script src="/js/header.js?v=3"></script>
   <script src="/js/utils.js?v=3"></script>
   <script src="/js/clubs.js?v=3"></script>
