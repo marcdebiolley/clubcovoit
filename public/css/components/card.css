@@ -73,3 +73,30 @@
   gap: 12px;
   margin: 12px 0;
 }
+
+/* Mobile responsive cards */
+@media (max-width: 768px) {
+  .card, .car-card {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+  
+  .car-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .stat-card {
+    min-width: 0;
+    padding: 8px;
+  }
+}
