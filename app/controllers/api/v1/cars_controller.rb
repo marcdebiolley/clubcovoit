@@ -42,8 +42,15 @@ class Api::V1::CarsController < ApplicationController
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
     
-    # Retirer automatiquement tous les participants de cette voiture
-    @car.participants.update_all(car_id: nil)
+    # Gérer les participants de cette voiture
+    drivers = @car.participants.where(role: "driver")
+    passengers = @car.participants.where(role: "passenger")
+    
+    # Supprimer complètement les conducteurs (ils ne peuvent pas devenir passagers)
+    drivers.destroy_all
+    
+    # Les passagers deviennent des passagers sans voiture assignée
+    passengers.update_all(car_id: nil)
     
     @car.destroy!
     recalc_ride!(ride, nil)

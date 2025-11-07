@@ -289,7 +289,7 @@ function bindPassengerCrud() {
         if (delCarBtn.dataset.busy === '1') return;
         const cid = delCarBtn.getAttribute('data-delcar');
         if (!cid) return;
-        if (!confirm('Supprimer cette voiture ?')) return;
+        if (!confirm('Supprimer cette voiture ?\n\n⚠️ Le conducteur sera retiré du trajet.\n✅ Les passagers resteront inscrits mais sans voiture assignée.')) return;
         try {
           delCarBtn.dataset.busy = '1';
           delCarBtn.textContent = 'Suppression...';

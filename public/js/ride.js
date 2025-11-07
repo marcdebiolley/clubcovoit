@@ -460,7 +460,7 @@ async function loadRide() {
     document.querySelectorAll('[data-delcar]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const cid = btn.getAttribute('data-delcar');
-        if (!confirm('Supprimer cette voiture ? (Tous les participants seront automatiquement retirés)')) return;
+        if (!confirm('Supprimer cette voiture ?\n\n⚠️ Le conducteur sera retiré du trajet.\n✅ Les passagers resteront inscrits mais sans voiture assignée.')) return;
         
         // Désactiver le bouton pendant la suppression
         btn.disabled = true;
