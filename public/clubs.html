@@ -85,13 +85,22 @@
         
         const data = await response.json();
         
-        if (response.ok && data.success) {
+        if (response.ok && data.ok) {
           alert('Vous avez rejoint le groupe avec succès !');
           document.getElementById('joinDropdown').classList.remove('show');
           document.getElementById('joinForm').reset();
           location.reload();
         } else {
-          alert('Erreur: ' + (data.error || 'Code d\'invitation invalide'));
+          // Gestion des erreurs spécifiques
+          let errorMessage = 'Code d\'invitation invalide';
+          if (data.error === 'CODE_REQUIRED') {
+            errorMessage = 'Code d\'invitation requis';
+          } else if (data.error === 'NOT_FOUND') {
+            errorMessage = 'Code d\'invitation invalide ou expiré';
+          } else if (data.error) {
+            errorMessage = data.error;
+          }
+          alert('Erreur: ' + errorMessage);
         }
       } catch (error) {
         alert('Erreur de connexion. Veuillez réessayer.');
