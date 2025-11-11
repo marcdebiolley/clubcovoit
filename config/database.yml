@@ -11,13 +11,13 @@ default: &default
 
 development:
   <<: *default
-  database: clubcovoit_production
+  database: clubcovoit_development
   username: <%= ENV.fetch("DB_USER", "marcodb") %>
   password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
 
 test:
   <<: *default
-  database: clubcovoit_production
+  database: clubcovoit_development
   username: <%= ENV.fetch("DB_USER", "marcodb") %>
   password: <%= ENV.fetch("DB_PASSWORD", "Prana.2020") %>
 
