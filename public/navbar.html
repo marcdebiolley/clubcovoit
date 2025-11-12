@@ -1,3 +1,24 @@
+<style>
+  /* Make the global navbar stick to the top of the viewport */
+  .navbar {
+    position: sticky;
+    position: -webkit-sticky; /* Safari */
+    top: 0;
+    z-index: 1000; /* above page content */
+    background: #fff; /* ensure it’s opaque over content */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* subtle separation */
+  }
+
+  /* Ensure inner container doesn’t create its own stacking context */
+  .navbar .nav-inner { 
+    position: relative; 
+  }
+
+  /* Make sure the mobile menu overlays page content when opened */
+  .mobile-menu { 
+    z-index: 1100; 
+  }
+</style>
 <!-- Standalone Navbar Markup: edit this file to change the global navbar -->
 <div class="navbar">
   <div class="nav-inner">
