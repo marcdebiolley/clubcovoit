@@ -916,16 +916,4 @@ body {
   padding-top: 0 !important;
 }
 
-/* Mobile menu should appear below sticky navbar */
-.mobile-menu {
-  position: fixed !important;
-  top: 60px !important;
-  z-index: 999 !important;
-  width: 100% !important;
-  left: 0 !important;
-}
-
-/* Login dropdown should also respect sticky navbar */
-.login-dropdown {
-  z-index: 1001 !important;
-}
+/* Navbar positioning is now handled by navbar.css */

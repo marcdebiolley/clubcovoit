@@ -1,159 +1,32 @@
-// Inject reusable navbar component into pages
+// Simple navbar loader
 (function () {
-  function mountNavbar(html) {
-    // Remove any existing navbar to avoid duplicates
+  function loadNavbar(html) {
+    // Remove existing navbar
     var existing = document.querySelector('.navbar');
     if (existing) existing.remove();
 
-    // Prefer explicit mount point
-    var mount = document.getElementById('app-navbar') || document.getElementById('app-header');
+    // Mount navbar
+    var mount = document.getElementById('app-navbar');
     if (mount) {
-      mount.insertAdjacentHTML('afterbegin', html);
+      mount.innerHTML = html;
     } else {
       document.body.insertAdjacentHTML('afterbegin', html);
     }
 
-    // Active link highlight by path
-    try {
-      var path = location.pathname || '/';
-      document.querySelectorAll('.nav a').forEach(function (a) {
-        if (a.getAttribute('href') === path) a.classList.add('active');
-      });
-    } catch {}
-
-    // Logout (desktop)
-    var logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function () {
-        try { localStorage.removeItem('userToken'); } catch {}
-        window.location.href = '/index.html';
-      });
-    }
-    // Logout (mobile)
-    var logoutBtnMobile = document.getElementById('logoutBtnMobile');
-    if (logoutBtnMobile) {
-      logoutBtnMobile.addEventListener('click', function () {
-        try { localStorage.removeItem('userToken'); } catch {}
-        window.location.href = '/index.html';
-      });
-    }
-
-    // Mobile menu toggle
-    var mobileBtn = document.getElementById('mobileMenuBtn');
-    var mobileMenu = document.getElementById('mobileMenu');
-    if (mobileBtn && mobileMenu) {
-      mobileBtn.addEventListener('click', function () {
-        mobileBtn.classList.toggle('active');
-        mobileMenu.classList.toggle('active');
-      });
-      // Close on navigation
-      mobileMenu.querySelectorAll('a').forEach(function (lnk) {
-        lnk.addEventListener('click', function () {
-          mobileBtn.classList.remove('active');
-          mobileMenu.classList.remove('active');
-        });
-      });
-    }
-
-    // Toggle items based on auth state
-    try {
-      var token = null; try { token = localStorage.getItem('userToken'); } catch {}
-      var isLogged = !!token;
-
-      // Desktop links
-      var linkClubs = document.querySelector('.nav a[href="/clubs.html"]');
-      var linkProfile = document.querySelector('.nav a[href="/profile.html"]');
-      var btnLogout = document.getElementById('logoutBtn');
-      var linkLogin = document.getElementById('loginLink');
-
-      if (isLogged) {
-        if (linkClubs) linkClubs.style.display = '';
-        if (linkProfile) linkProfile.style.display = '';
-        if (btnLogout) btnLogout.style.display = '';
-        if (linkLogin) linkLogin.style.display = 'none';
-        var dd = document.getElementById('loginDropdown'); if (dd) {}
-        var wrap = linkLogin ? linkLogin.closest('.login-wrap') : null; if (wrap) wrap.classList.remove('open');
-      } else {
-        if (linkClubs) linkClubs.style.display = 'none';
-        if (linkProfile) linkProfile.style.display = 'none';
-        if (btnLogout) btnLogout.style.display = 'none';
-        if (linkLogin) linkLogin.style.display = '';
+    // Highlight active page
+    var path = location.pathname || '/';
+    document.querySelectorAll('.nav-links a').forEach(function (link) {
+      if (link.getAttribute('href') === path) {
+        link.classList.add('active');
       }
-
-      // Mobile menu links
-      var mClubs = document.querySelector('#mobileMenu a[href="/clubs.html"]');
-      var mProfile = document.querySelector('#mobileMenu a[href="/profile.html"]');
-      var mLogin = document.getElementById('loginLinkMobile');
-      var btnLogoutMobile = document.getElementById('logoutBtnMobile');
-
-      if (isLogged) {
-        if (mClubs) mClubs.style.display = '';
-        if (mProfile) mProfile.style.display = '';
-        if (btnLogoutMobile) btnLogoutMobile.style.display = '';
-        if (mLogin) mLogin.style.display = 'none';
-      } else {
-        if (mClubs) mClubs.style.display = 'none';
-        if (mProfile) mProfile.style.display = 'none';
-        if (btnLogoutMobile) btnLogoutMobile.style.display = 'none';
-        if (mLogin) mLogin.style.display = '';
-      }
-    } catch {}
-
-    // Login dropdown toggle + submit
-    try {
-      var loginLink = document.getElementById('loginLink');
-      var loginDropdown = document.getElementById('loginDropdown');
-      var loginWrap = loginLink ? loginLink.closest('.login-wrap') : null;
-      var loginForm = document.getElementById('navbarLoginForm');
-      var loginErr = document.getElementById('navLoginError');
-      if (loginLink && loginDropdown) {
-        loginLink.addEventListener('click', function (e) {
-          e.preventDefault();
-          var isOpen = loginWrap && loginWrap.classList.contains('open');
-          if (loginWrap) loginWrap.classList.toggle('open', !isOpen);
-          loginLink.setAttribute('aria-expanded', String(!isOpen));
-        });
-        document.addEventListener('click', function (e) {
-          if (!loginDropdown.contains(e.target) && !loginWrap.contains(e.target)) {
-            loginLink.setAttribute('aria-expanded', 'false');
-            if (loginWrap) loginWrap.classList.remove('open');
-          }
-        });
-      }
-      if (loginForm) {
-        loginForm.addEventListener('submit', function (e) {
-          e.preventDefault();
-          var email = (document.getElementById('nav_email')||{}).value || '';
-          var password = (document.getElementById('nav_password')||{}).value || '';
-          if (!email || !password) return;
-          fetch('/api/v1/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email.trim(), password: password })
-          }).then(function (res) { return res.text().then(function (t){ return { ok: res.ok, text: t }; }); })
-            .then(function (res) {
-              var data = {}; try { data = JSON.parse(res.text); } catch {}
-              if (!res.ok || !data.token) {
-                if (loginErr) { loginErr.textContent = (data.error || data.details || 'Connexion impossible'); loginErr.style.display = 'block'; }
-                return;
-              }
-              try { localStorage.setItem('userToken', data.token); } catch {}
-              // Refresh nav state
-              if (loginWrap) loginWrap.classList.remove('open');
-              if (loginErr) loginErr.style.display = 'none';
-              // Reload page to reflect authenticated sections requirements
-              window.location.reload();
-            })
-            .catch(function () { if (loginErr) { loginErr.textContent = 'Connexion impossible'; loginErr.style.display = 'block'; } });
-        });
-      }
-    } catch {}
+    });
   }
 
-  fetch('/navbar.html', { credentials: 'same-origin' })
+  // Load navbar
+  fetch('/navbar.html')
     .then(function (res) { return res.text(); })
-    .then(function (html) { mountNavbar(html); })
-    .catch(function () {});
+    .then(function (html) { loadNavbar(html); })
+    .catch(function () { console.log('Navbar loading failed'); });
 })();
 
 (function(){

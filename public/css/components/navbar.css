@@ -1,429 +1,64 @@
-/* Navbar component */
+/* Simple Navbar */
 .navbar {
   position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: var(--white);
-  padding: 10px 0;
-  border-bottom: 1px solid var(--surface-border);
-  box-shadow: none;
+  z-index: 1000;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.nav-inner {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0 24px;
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap;
-  position: relative;
+  height: 60px;
 }
 
 .logo {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  background-clip: text;
-  color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
-  white-space: nowrap;
-}
-
-.navbar .nav a,
-.navbar .nav a:link,
-.navbar .nav a:visited {
+  color: #4f46e5;
   text-decoration: none;
-  color: var(--dark) !important;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease,
-    text-underline-offset 0.2s ease;
-  text-underline-offset: 4px;
 }
 
-.navbar .nav a:hover {
-  color: var(--primary) !important;
-  text-decoration: underline;
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
 }
 
-.navbar .nav a.active,
-.navbar .nav a[aria-current="page"] {
-  color: var(--primary) !important;
-  text-decoration: underline;
-}
-
-/* Navbar actions styled as text (not pill buttons) */
-.navbar .nav .btn,
-.navbar .nav .btn.btn-secondary {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 6px 10px;
-  color: var(--gray) !important;
-  border-radius: 6px !important;
+.nav-links a {
   text-decoration: none;
-  font-weight: 600;
-}
-.navbar .nav .btn:hover,
-.navbar .nav .btn.btn-secondary:hover {
-  color: var(--primary) !important;
-  text-decoration: underline;
-}
-.navbar .nav .btn:focus,
-.navbar .nav .btn.btn-secondary:focus {
-  outline: none;
-}
-.navbar .nav .btn.active,
-.navbar .nav .btn.btn-secondary.active {
-  color: var(--primary);
-}
-
-/* Mobile tweaks */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 8px 0;
-  }
-  .nav-inner {
-    padding: 0 16px;
-  }
-  .logo { 
-    font-size: 1.5rem;
-    position: static;
-    transform: none;
-  }
-  .navbar .nav {
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
-}
-
-/* iPhone portrait specific */
-@media (max-width: 414px) {
-  .nav-inner {
-    padding: 0 12px;
-  }
-  .logo {
-    font-size: 1.3rem;
-  }
-}
-
-/* ----- Mobile menu (component) ----- */
-.mobile-menu-btn {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 6px;
-}
-.mobile-menu-btn span {
-  width: 22px;
-  height: 2px;
-  background: var(--dark);
-  border-radius: 2px;
-  transition:
-    transform 0.25s ease,
-    opacity 0.25s ease;
-}
-.mobile-menu-btn.active span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-.mobile-menu-btn.active span:nth-child(2) {
-  opacity: 0;
-}
-.mobile-menu-btn.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
-}
-
-.mobile-menu {
-  position: fixed;
-  top: 60px; /* navbar height */
-  left: 0;
-  right: 0;
-  background: var(--white);
-  border-bottom: 1px solid var(--surface-border);
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    transform 0.3s ease,
-    opacity 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  z-index: 999;
-  max-height: calc(100vh - 60px);
-  overflow-y: auto;
-}
-.mobile-menu.active {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: all;
-}
-.mobile-menu-links {
-  list-style: none !important;
-  padding: 16px 20px;
-  margin: 0;
-}
-.mobile-menu-links li {
-  margin: 10px 0;
-}
-.mobile-menu-links a {
-  text-decoration: none;
-  color: var(--dark);
+  color: #374151;
   font-weight: 500;
-  display: block;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--surface-border);
-  font-size: 1.1rem;
-}
-.mobile-menu-links a:hover {
-  color: var(--primary);
-}
-.mobile-menu-cta {
-  padding: 0 20px 16px;
-}
-.mobile-menu-cta button {
-  width: 100%;
+  transition: color 0.2s;
 }
 
-/* Show hamburger and hide desktop links on small screens */
-@media (max-width: 768px) {
-  .mobile-menu-btn {
-    display: flex;
-  }
-  .nav-links {
-    display: none;
-  }
+.nav-links a:hover {
+  color: #4f46e5;
 }
 
-/* ----- Login dropdown (desktop) ----- */
-.login-wrap {
-  position: relative;
-  display: inline-block;
-}
-
-.login-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 260px;
-  background: var(--white);
-  border: 1px solid var(--surface-border);
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-  padding: 12px;
-  z-index: 120;
-  transform-origin: top right;
-  transition: opacity .15s ease, transform .15s ease;
-  display: none;
-  opacity: 0;
-  transform: translateY(-6px) scale(0.98);
-}
-
-.login-wrap.open .login-dropdown {
-  display: block;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.login-dropdown form {
-  display: grid;
-  gap: 10px;
-}
-
-.login-dropdown .form-group label {
-  font-size: 12px;
-  color: var(--gray);
-}
-
-.login-dropdown .form-group input {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--surface-border);
-  border-radius: 8px;
-}
-
-.login-dropdown .btn {
-  width: 100%;
-  padding: 10px 12px;
-  background: var(--primary);
-  color: #fff !important;
-  border-radius: 8px;
-}
-
-/* Simple dropdown list */
-.login-dropdown .dropdown-menu {
-  list-style: none;
-  margin: 0;
-  padding: 6px 0;
-}
-.login-dropdown .dropdown-menu li {
-  margin: 0;
-}
-.login-dropdown .dropdown-menu a {
-  display: block;
-  padding: 8px 12px;
-  text-decoration: none;
-  color: var(--dark);
-}
-.login-dropdown .dropdown-menu a:hover {
-  background: var(--surface);
-}
-
-/* Trigger appearance with caret (customizable) */
-.login-wrap > a#loginLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Caret built with borders so it’s easily themeable */
-:root {
-  --caret-size: 6px;
-  --caret-color: var(--dark);
-}
-
-.login-wrap > a#loginLink .caret {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: var(--caret-size) solid var(--caret-color);
-  display: inline-block;
-  transform: translateY(1px);
-}
-
-.login-wrap.open > a#loginLink .caret {
-  border-top-color: var(--primary);
-}
-
-@media (max-width: 768px) {
-  /* Hide desktop dropdown on mobile; mobile menu already has login link */
-  .login-wrap { display: none; }
-}
-
-/* ===== Rich login panel styling ===== */
-.login-dropdown .panel {
-  background: var(--white);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.14);
-  border: 1px solid var(--surface-border);
-  width: min(360px, 86vw);
-}
-
-.login-dropdown .panel-header {
-  padding: 18px 20px 14px 20px;
-  border-bottom: 1px solid var(--surface-border);
-  text-align: center;
-}
-.login-dropdown .panel-header h3 {
-  margin: 0 0 6px 0;
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--dark);
-}
-.login-dropdown .panel-header .sub {
-  margin: 0;
-  color: var(--gray);
-  font-size: .95rem;
-}
-
-.login-dropdown .panel-body {
-  padding: 16px 20px 12px 20px;
-  display: grid;
-  gap: 12px;
-}
-.login-dropdown .panel-body .form-group label {
-  display: block;
-  font-size: .9rem;
+.nav-links a.active {
+  color: #4f46e5;
   font-weight: 600;
-  color: var(--dark);
-  margin-bottom: 6px;
-}
-.login-dropdown .panel-body .form-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--surface-border);
-  border-radius: 10px;
-  background: var(--white);
-}
-.login-dropdown .panel-body .row-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-.login-dropdown .panel-body .check { display: inline-flex; align-items: center; gap: 8px; }
-.login-dropdown .panel-body .link { color: var(--primary); text-decoration: none; font-weight: 600; }
-.login-dropdown .panel-body .link:hover { text-decoration: underline; }
-
-.login-dropdown .panel-body .btn.block { width: 100%; }
-.login-dropdown .panel-body .btn.btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff !important;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 14px;
-  box-shadow: 0 10px 20px rgba(79,70,229,0.25);
 }
 
-.login-dropdown .panel-body .error {
-  color: #b91c1c;
-  font-size: .9rem;
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 0 1rem;
+  }
+  
+  .nav-links {
+    gap: 1rem;
+  }
+  
+  .nav-links a {
+    font-size: 0.9rem;
+  }
 }
 
-.login-dropdown .panel-body .or {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--gray);
-  font-size: .9rem;
-}
-.login-dropdown .panel-body .or::before,
-.login-dropdown .panel-body .or::after {
-  content: "";
-  height: 1px;
-  background: var(--surface-border);
-  flex: 1;
-}
-
-.login-dropdown .panel-body .socials { display: grid; gap: 10px; }
-.login-dropdown .panel-body .btn.btn-neutral {
-  width: 100%;
-  background: #fff;
-  border: 1px solid var(--surface-border);
-  color: var(--dark);
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
-}
-.login-dropdown .panel-body .btn.btn-neutral .g::before { content: "G"; font-weight: 700; color: #1f2937; }
-.login-dropdown .panel-body .btn.btn-neutral .f::before { content: "f"; font-weight: 800; color: #1f2937; }
-
-.login-dropdown .panel-footer {
-  padding: 12px 20px 16px 20px;
-  border-top: 1px solid var(--surface-border);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  color: var(--gray);
-}
-.login-dropdown .panel-footer .link { color: var(--primary); text-decoration: none; font-weight: 700; }
-.login-dropdown .panel-footer .link:hover { text-decoration: underline; }
