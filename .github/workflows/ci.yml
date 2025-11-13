@@ -21,7 +21,7 @@ jobs:
           bundler-cache: true
 
       - name: Install Node (optional)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 
