@@ -1,22 +1,36 @@
 <style>
-  /* Make the global navbar stick to the top of the viewport */
+  /* STICKY NAVBAR - Clean and working version */
   .navbar {
-    position: sticky;
-    position: -webkit-sticky; /* Safari */
-    top: 0;
-    z-index: 1000; /* above page content */
-    background: #fff; /* ensure it’s opaque over content */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* subtle separation */
+    position: -webkit-sticky !important; /* Safari */
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    width: 100% !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    transition: box-shadow 0.2s ease !important;
   }
 
-  /* Ensure inner container doesn’t create its own stacking context */
+  /* Ensure proper inner layout */
   .navbar .nav-inner { 
-    position: relative; 
+    position: relative !important;
+    min-height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
-  /* Make sure the mobile menu overlays page content when opened */
+  /* Mobile menu above navbar */
   .mobile-menu { 
-    z-index: 1100; 
+    position: fixed !important;
+    top: 60px !important;
+    z-index: 1100 !important;
+    width: 100% !important;
+    left: 0 !important;
+  }
+
+  /* Login dropdown above everything */
+  .login-dropdown {
+    z-index: 1200 !important;
   }
 </style>
 <!-- Standalone Navbar Markup: edit this file to change the global navbar -->
