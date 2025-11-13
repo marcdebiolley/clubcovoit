@@ -70,7 +70,14 @@ async function loadGroups() {
     listEl.innerHTML = groups.map(groupCard).join('');
   } catch (error) {
     console.error('Erreur chargement clubs:', error);
-    alert('Impossible de charger les clubs');
+    // Afficher un message d'erreur moins intrusif
+    listEl.innerHTML = `
+      <div class="card grid-span-all text-center">
+        <div class="muted mb-8">⚠️ Erreur de chargement des clubs</div>
+        <p class="text-small text-secondary">Vérifiez votre connexion internet</p>
+        <button class="btn btn-secondary" onclick="loadGroups()">🔄 Réessayer</button>
+      </div>
+    `;
   }
 }
 

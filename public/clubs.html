@@ -89,7 +89,17 @@
           alert('Vous avez rejoint le groupe avec succès !');
           document.getElementById('joinDropdown').classList.remove('show');
           document.getElementById('joinForm').reset();
-          location.reload();
+          // Recharger seulement la liste des clubs au lieu de toute la page
+          try {
+            loadGroups();
+          } catch (e) {
+            // Si le rechargement des clubs échoue, on redirige vers la page du club
+            if (data.id) {
+              window.location.href = `/club-detail.html?id=${data.id}`;
+            } else {
+              location.reload();
+            }
+          }
         } else {
           // Gestion des erreurs spécifiques
           let errorMessage = 'Code d\'invitation invalide';
