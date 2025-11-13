@@ -26,35 +26,14 @@
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/style.css" />
   
-  <!-- FORCE NAVBAR STICKY - ULTRA AGGRESSIVE -->
   <style>
-    /* Override EVERYTHING for navbar sticky */
-    .navbar, 
-    div.navbar, 
-    #app-navbar .navbar,
-    [class*="navbar"] {
-      position: -webkit-sticky !important;
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 99999 !important;
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      width: 100% !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    
-    /* Force body to allow sticky */
-    body {
-      position: relative !important;
-      overflow-x: hidden !important;
-    }
-    
-    /* Ensure navbar container doesn't interfere */
-    #app-navbar {
-      position: relative !important;
-      z-index: 99999 !important;
+    /* Navbar sticky positioning */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
   </style>
   
@@ -62,26 +41,6 @@
 <body>
   <div id="app-navbar"></div>
 
-  <!-- TEST DEPLOY BOX - NAVBAR DEBUG -->
-  <div style="background: #ffeb3b; border: 2px solid #fbc02d; padding: 20px; margin: 20px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 18px; color: #333;">
-    🔧 NAVBAR DEBUG TEST - Version 13/11 16:38 🔧<br>
-    <small>Scroll vers le bas pour tester si la navbar reste en haut !</small>
-  </div>
-  
-  <!-- EXTRA CONTENT FOR SCROLL TEST -->
-  <div style="height: 200vh; background: linear-gradient(to bottom, #f0f0f0, #e0e0e0); padding: 50px; text-align: center;">
-    <h2>📏 ZONE DE TEST SCROLL</h2>
-    <p>Cette zone fait 200% de la hauteur de l'écran pour tester le scroll.</p>
-    <p>Si la navbar reste en haut quand tu scrolles, c'est que ça marche !</p>
-    <div style="margin-top: 100px;">
-      <h3>🎯 Milieu de la page</h3>
-      <p>Continue à scroller...</p>
-    </div>
-    <div style="margin-top: 100px;">
-      <h3>🏁 Fin de la zone de test</h3>
-      <p>Si tu vois toujours la navbar en haut, c'est gagné !</p>
-    </div>
-  </div>
 
   <!-- Hero Section -->
   <section class="hero" id="accueil">
@@ -208,33 +167,5 @@
   </section>
   <script src="/js/header.js?v=3"></script>
   <script src="/js/utils.js?v=3"></script>
-  
-  <!-- FORCE NAVBAR STICKY WITH JAVASCRIPT -->
-  <script>
-    // Force navbar sticky with JavaScript as backup
-    function forceNavbarSticky() {
-      const navbar = document.querySelector('.navbar');
-      if (navbar) {
-        navbar.style.position = 'sticky';
-        navbar.style.top = '0';
-        navbar.style.zIndex = '99999';
-        navbar.style.background = '#ffffff';
-        navbar.style.width = '100%';
-        navbar.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        console.log('✅ Navbar sticky forced with JavaScript');
-      } else {
-        console.log('❌ Navbar not found');
-      }
-    }
-    
-    // Try multiple times to ensure navbar is loaded
-    setTimeout(forceNavbarSticky, 100);
-    setTimeout(forceNavbarSticky, 500);
-    setTimeout(forceNavbarSticky, 1000);
-    
-    // Also try when DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', forceNavbarSticky);
-    window.addEventListener('load', forceNavbarSticky);
-  </script>
 </body>
 </html>
