@@ -26,6 +26,38 @@
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/style.css" />
   
+  <!-- FORCE NAVBAR STICKY - ULTRA AGGRESSIVE -->
+  <style>
+    /* Override EVERYTHING for navbar sticky */
+    .navbar, 
+    div.navbar, 
+    #app-navbar .navbar,
+    [class*="navbar"] {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 99999 !important;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      width: 100% !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Force body to allow sticky */
+    body {
+      position: relative !important;
+      overflow-x: hidden !important;
+    }
+    
+    /* Ensure navbar container doesn't interfere */
+    #app-navbar {
+      position: relative !important;
+      z-index: 99999 !important;
+    }
+  </style>
+  
 </head>
 <body>
   <div id="app-navbar"></div>
@@ -174,6 +206,35 @@
       <a class="btn btn-white" href="/club-create.html">Créer mon club maintenant</a>
     </div>
   </section>
-  <script src="/js/header.js"></script>
+  <script src="/js/header.js?v=3"></script>
+  <script src="/js/utils.js?v=3"></script>
+  
+  <!-- FORCE NAVBAR STICKY WITH JAVASCRIPT -->
+  <script>
+    // Force navbar sticky with JavaScript as backup
+    function forceNavbarSticky() {
+      const navbar = document.querySelector('.navbar');
+      if (navbar) {
+        navbar.style.position = 'sticky';
+        navbar.style.top = '0';
+        navbar.style.zIndex = '99999';
+        navbar.style.background = '#ffffff';
+        navbar.style.width = '100%';
+        navbar.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        console.log('✅ Navbar sticky forced with JavaScript');
+      } else {
+        console.log('❌ Navbar not found');
+      }
+    }
+    
+    // Try multiple times to ensure navbar is loaded
+    setTimeout(forceNavbarSticky, 100);
+    setTimeout(forceNavbarSticky, 500);
+    setTimeout(forceNavbarSticky, 1000);
+    
+    // Also try when DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', forceNavbarSticky);
+    window.addEventListener('load', forceNavbarSticky);
+  </script>
 </body>
 </html>
