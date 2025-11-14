@@ -8,9 +8,65 @@
   <link rel="stylesheet" href="/css/buttons.css?v=3" />
   <link rel="stylesheet" href="/css/forms.css?v=3" />
   <link rel="stylesheet" href="/css/layout.css?v=3" />
-  <link rel="stylesheet" href="/css/components/navbar.css?v=3" />
   <link rel="stylesheet" href="/css/pages/clubs.css?v=3" />
   <link rel="stylesheet" href="/css/style.css?v=4" />
+  
+  <!-- NAVBAR CSS INLINE -->
+  <style>
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      flex-direction: row-reverse;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #4f46e5;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #374151;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: #4f46e5;
+    }
+    .nav-links a.active {
+      color: #4f46e5;
+      font-weight: 600;
+    }
+    @media (max-width: 768px) {
+      .nav-container {
+        padding: 0 1rem;
+      }
+      .nav-links {
+        gap: 1rem;
+      }
+      .nav-links a {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body class="page-clubs">
   <!-- Navbar Inline -->
