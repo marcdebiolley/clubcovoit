@@ -13,8 +13,13 @@ function fetchJSON(url, options = {}) {
 }
 
 // Vérification d'authentification
-if (!getUserToken()) { 
-  window.location.href = '/index.html'; 
+if (!getUserToken()) {
+  // Éviter les boucles de redirection
+  if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+    window.location.href = '/index.html';
+  }
+  // Si déjà sur la page d'accueil, ne pas rediriger
+  return;
 }
 
 const listEl = document.getElementById('clubsList');
