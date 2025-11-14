@@ -1,5 +1,9 @@
 // Simple navbar loader
 (function () {
+  // Prevent multiple loads
+  if (window.__navbarLoaded) return;
+  window.__navbarLoaded = true;
+
   function loadNavbar(html) {
     // Remove existing navbar
     var existing = document.querySelector('.navbar');
