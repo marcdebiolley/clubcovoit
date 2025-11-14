@@ -60,7 +60,7 @@
   }
 
   // Load navbar
-  fetch('/navbar.html')
+  fetch('/navbar-v2.html')
     .then(function (res) { return res.text(); })
     .then(function (html) { loadNavbar(html); })
     .catch(function () { console.log('Navbar loading failed'); });
