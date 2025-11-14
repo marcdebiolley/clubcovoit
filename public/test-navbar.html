@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Navbar - ClubCovoit</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      flex-direction: row-reverse;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #4f46e5;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #374151;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: #4f46e5;
+    }
+    .nav-links a.active {
+      color: #4f46e5;
+      font-weight: 600;
+    }
+    .test-content {
+      padding: 2rem;
+      text-align: center;
+    }
+    .success {
+      background: #10b981;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar Test -->
+  <div class="navbar">
+    <div class="nav-container">
+      <a href="/index.html" class="logo">ClubCovoit</a>
+      <nav class="nav-links">
+        <a href="/index.html">Accueil</a>
+        <a href="/clubs.html">Clubs</a>
+        <a href="/login.html">Connexion</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="test-content">
+    <div class="success">
+      ✅ SI VOUS VOYEZ CETTE NAVBAR AVEC DU STYLE, ÇA MARCHE !
+    </div>
+    <h1>Test de la Navbar</h1>
+    <p>Cette page teste si la navbar fonctionne correctement avec le CSS inline.</p>
+    <p>Si la navbar ci-dessus a du style (fond blanc, bordure, logo bleu), alors la solution fonctionne !</p>
+    <p><strong>Timestamp: 2024-11-14 18:40</strong></p>
+  </div>
+
+  <script>
+    // Test auth functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      var token = localStorage.getItem('userToken');
+      var loginLink = document.querySelector('a[href="/login.html"]');
+      
+      if (token && loginLink) {
+        loginLink.textContent = 'Déconnexion';
+        loginLink.href = '#';
+        loginLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          localStorage.removeItem('userToken');
+          window.location.reload();
+        });
+      }
+      
+      // Highlight active page
+      var path = location.pathname;
+      document.querySelectorAll('.nav-links a').forEach(function(link) {
+        if (link.getAttribute('href') === path) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
