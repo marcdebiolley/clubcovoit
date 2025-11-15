@@ -1,9 +1,5 @@
 // Simple navbar loader
 (function () {
-  // Prevent multiple loads
-  if (window.__navbarLoaded) return;
-  window.__navbarLoaded = true;
-
   function loadNavbar(html) {
     // Remove existing navbar
     var existing = document.querySelector('.navbar');
@@ -24,43 +20,10 @@
         link.classList.add('active');
       }
     });
-
-    // Handle authentication state
-    var token = null;
-    try { 
-      token = localStorage.getItem('userToken'); 
-    } catch {}
-    var isLoggedIn = !!token;
-
-    var loginLink = document.getElementById('loginLink');
-    var logoutBtn = document.getElementById('logoutBtn');
-    var clubsLink = document.getElementById('clubsLink');
-
-    if (isLoggedIn) {
-      // User is logged in
-      if (loginLink) loginLink.style.display = 'none';
-      if (logoutBtn) logoutBtn.style.display = 'inline-block';
-      if (clubsLink) clubsLink.style.display = 'inline-block';
-    } else {
-      // User is not logged in
-      if (loginLink) loginLink.style.display = 'inline-block';
-      if (logoutBtn) logoutBtn.style.display = 'none';
-      if (clubsLink) clubsLink.style.display = 'inline-block'; // Keep clubs visible but will redirect
-    }
-
-    // Logout functionality
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function() {
-        try { 
-          localStorage.removeItem('userToken'); 
-        } catch {}
-        window.location.href = '/index.html';
-      });
-    }
   }
 
   // Load navbar
-  fetch('/navbar-v2.html')
+  fetch('/navbar.html')
     .then(function (res) { return res.text(); })
     .then(function (html) { loadNavbar(html); })
     .catch(function () { console.log('Navbar loading failed'); });

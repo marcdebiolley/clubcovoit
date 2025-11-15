@@ -48,21 +48,6 @@
   font-weight: 600;
 }
 
-.logout-btn {
-  background: none;
-  border: none;
-  color: #374151;
-  font-weight: 500;
-  font-size: inherit;
-  cursor: pointer;
-  transition: color 0.2s;
-  font-family: inherit;
-}
-
-.logout-btn:hover {
-  color: #4f46e5;
-}
-
 /* Mobile responsive */
 @media (max-width: 768px) {
   .nav-container {
@@ -77,3 +62,4 @@
     font-size: 0.9rem;
   }
 }
+
