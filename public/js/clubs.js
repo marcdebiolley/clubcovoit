@@ -62,7 +62,8 @@ function truncate(text, len = 140) {
 
 async function loadGroups() {
   try {
-    const groups = await fetchJSON('/api/v1/groups');
+    // Sur Plesk, on utilise un endpoint PHP simple
+    const groups = await fetchJSON('/api/v1/groups.php');
     if (!groups || groups.length === 0) {
       listEl.innerHTML = `
         <div class="card grid-span-all text-center">

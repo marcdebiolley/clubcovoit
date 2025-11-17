@@ -14,10 +14,21 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   CC.UI.setLoading(submitBtn, true);
   
   try {
-    const data = await CC.API.post('/auth/login', {
-      email: formData.email.trim(),
-      password: formData.password
+    // Appel direct au script PHP sur Plesk
+    const response = await fetch('/api/v1/auth/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: formData.email.trim(),
+        password: formData.password
+      })
     });
+
+    if (!response.ok) {
+      throw new Error('Login failed');
+    }
+
+    const data = await response.json();
     
     CC.Auth.setToken(data.token);
     CC.URL.redirect('/index.html');
