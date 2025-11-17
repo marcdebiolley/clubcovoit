@@ -1,11 +1,6 @@
 // Utilise les utilitaires communs
 const { Auth, API, UI, Form } = window.ClubCovoit;
 
-// Rediriger si déjà connecté
-if (Auth.isLoggedIn()) {
-  URL.redirect('/index.html');
-}
-
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = Form.getData(e.target);
