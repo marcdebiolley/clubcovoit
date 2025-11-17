@@ -48,6 +48,41 @@
   font-weight: 600;
 }
 
+/* Legacy simple navbar variants (.nav-content / .nav-menu) */
+.nav-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-menu a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.nav-menu a:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+.nav-menu a.active {
+  background: #4f46e5;
+  color: white;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .nav-container {

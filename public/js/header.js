@@ -1,34 +1,3 @@
-// Simple navbar loader
-(function () {
-  function loadNavbar(html) {
-    // Remove existing navbar
-    var existing = document.querySelector('.navbar');
-    if (existing) existing.remove();
-
-    // Mount navbar
-    var mount = document.getElementById('app-navbar');
-    if (mount) {
-      mount.innerHTML = html;
-    } else {
-      document.body.insertAdjacentHTML('afterbegin', html);
-    }
-
-    // Highlight active page
-    var path = location.pathname || '/';
-    document.querySelectorAll('.nav-links a').forEach(function (link) {
-      if (link.getAttribute('href') === path) {
-        link.classList.add('active');
-      }
-    });
-  }
-
-  // Load navbar
-  fetch('/navbar.html')
-    .then(function (res) { return res.text(); })
-    .then(function (html) { loadNavbar(html); })
-    .catch(function () { console.log('Navbar loading failed'); });
-})();
-
 (function(){
   try {
     var k = 'cookieConsent';

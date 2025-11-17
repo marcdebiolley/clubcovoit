@@ -1,11 +1,68 @@
-<!-- Simple Navbar -->
-<div class="navbar">
-  <div class="nav-container">
-    <a href="/index.html" class="logo">ClubCovoit</a>
-    <nav class="nav-links">
-      <a href="/index.html">Accueil</a>
-      <a href="/clubs.html">Clubs</a>
-      <a href="/login.html">Connexion</a>
-    </nav>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navbar - ClubCovoit</title>
+  <link rel="stylesheet" href="/css/components/navbar.css" />
+</head>
+<body>
+  <!-- Simple Navbar -->
+  <div class="navbar">
+    <div class="nav-container">
+      <a href="/index.html" class="logo">ClubCovoit</a>
+      <nav class="nav-links">
+        <a href="/index.html">Accueil</a>
+        <a href="/clubs.html">Clubs</a>
+        <a href="/login.html">Connexion</a>
+      </nav>
+    </div>
   </div>
-</div>
+
+  <main style="padding: 2rem; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+    <h1>Navbar ClubCovoit</h1>
+    <p>Ceci est la navbar de référence utilisée sur les pages statiques.</p>
+    <ul>
+      <li>Invité : le lien affiche « Connexion » et pointe vers <code>/login.html</code>.</li>
+      <li>Connecté (un <code>userToken</code> est présent dans <code>localStorage</code>) : le lien devient « Déconnexion ».</li>
+      <li>Le lien de la page courante est surligné.</li>
+    </ul>
+  </main>
+
+  <script>
+    // Gestion simple de l'auth pour la navbar statique
+    (function() {
+      var token = null;
+      try {
+        token = localStorage.getItem('userToken');
+      } catch {}
+      var isLoggedIn = !!token;
+
+      var navbar = document.querySelector('.navbar');
+      if (!navbar) return;
+
+      if (isLoggedIn) {
+        var loginLink = navbar.querySelector('a[href="/login.html"]');
+        if (loginLink) {
+          loginLink.textContent = 'Déconnexion';
+          loginLink.href = '#';
+          loginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            try {
+              localStorage.removeItem('userToken');
+            } catch {}
+            window.location.href = '/index.html';
+          });
+        }
+      }
+
+      var path = location.pathname || '/';
+      navbar.querySelectorAll('.nav-links a').forEach(function(link) {
+        if (link.getAttribute('href') === path) {
+          link.classList.add('active');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
