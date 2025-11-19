@@ -41,12 +41,20 @@
       var navbar = document.querySelector('.navbar');
       if (!navbar) return;
 
-      if (isLoggedIn) {
-        var loginLink = navbar.querySelector('a[href="/login.html"]');
-        if (loginLink) {
-          loginLink.textContent = 'Déconnexion';
-          loginLink.href = '#';
-          loginLink.addEventListener('click', function(e) {
+      var nav = navbar.querySelector('.nav-links');
+      if (isLoggedIn && nav) {
+        // Menu étendu quand l'utilisateur est connecté
+        nav.innerHTML = `
+          <a href="/index.html">Accueil</a>
+          <a href="/clubs.html">Clubs</a>
+          <a href="/profile.html">Profil</a>
+          <a href="/about.html">About</a>
+          <a href="#" id="logoutLink">Déconnexion</a>
+        `;
+
+        var logoutLink = document.getElementById('logoutLink');
+        if (logoutLink) {
+          logoutLink.addEventListener('click', function(e) {
             e.preventDefault();
             try {
               localStorage.removeItem('userToken');
