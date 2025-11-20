@@ -2,22 +2,25 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+
   if (!form) return;
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
 
+    // Vérification basique juste pour éviter les champs vides
     if (!email || !password) {
       alert("Merci de remplir l'email et le mot de passe.");
       return;
     }
 
     try {
-      // même origine que la page : https://clubcovoit.com/api/v1/auth/login
-      const response = await fetch("/api/v1/auth/login", {
+      const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,22 +28,24 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json().catch(() => ({}));
+      if (res.status === 200) {
+        const data = await res.json();
 
-      if (!response.ok) {
-        alert(data.error || "Email ou mot de passe invalide.");
-        return;
+        // On stocke le token + user pour les autres pages
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("currentUser", JSON.stringify(data.user));
+
+        // Redirection vers la liste des clubs (ou autre)
+        window.location.href = "/clubs.html";
+      } else if (res.status === 401) {
+        alert("Email ou mot de passe incorrect.");
+      } else {
+        console.error("Erreur login", res.status);
+        alert("Erreur serveur, merci de réessayer.");
       }
-
-      // on stocke le token + user pour la suite
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("currentUser", JSON.stringify(data.user));
-
-      // redirection vers la page clubs
-      window.location.href = "/clubs.html";
-    } catch (error) {
-      console.error("Erreur réseau", error);
-      alert("Erreur réseau, merci de réessayer.");
+    } catch (err) {
+      console.error("Erreur réseau", err);
+      alert("Impossible de contacter le serveur. Vérifie ta connexion.");
     }
   });
 });
