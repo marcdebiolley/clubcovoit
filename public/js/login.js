@@ -10,8 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+    const formData = new FormData(form);
+    const email = (formData.get("email") || "").toString().trim();
+    const password = (formData.get("password") || "").toString();
+
+    console.log("login submit values =>", { email, passwordLength: password.length });
 
     // Vérification basique juste pour éviter les champs vides
     if (!email || !password) {
