@@ -10,15 +10,16 @@
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/pages/login.css" />
   <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/components/navbar.css" />
 </head>
 <body class="page-login" data-require-auth="false">
+  <div id="navbar-placeholder"></div>
   <div class="container">
     <div class="header">
       <h1>🔐 Connexion</h1>
       <p>Accédez à l'organisation de vos trajets d'activités sportives et extra-sportives</p>
     </div>
 
-    <h1 style="color: red; font-size: 70px; font-weight: bold;">je fais du sport</h1>
     <div class="card">
       <form id="loginForm">
         <div class="form-group">
@@ -36,7 +37,8 @@
       </div>
     </div>
   </div>
-  <script src="/js/utils.js"></script>
+  <script src="/js/header.js?v=3"></script>
+  <script src="/js/utils.js?v=3"></script>
   <script src="/js/login.js"></script>
 </body>
 </html>

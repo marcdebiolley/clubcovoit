@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/pages/ride.css" />
   <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/components/navbar.css" />
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <link
@@ -20,7 +21,7 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1/mapbox-gl-geocoder.min.js"></script>
 </head>
 <body class="page-ride">
-  <div id="app-navbar"></div>
+  <div id="navbar-placeholder"></div>
   <div class="container">
     <div class="header">
       <h1>🚗 Détails du covoiturage</h1>
@@ -165,7 +166,8 @@
       <ul id="waitingList" class="passengers-list"></ul>
     </div>
   </div>
-  <script src="/js/header.js"></script>
+  <script src="/js/header.js?v=3"></script>
+  <script src="/js/utils.js?v=3"></script>
   <script src="/js/config.js"></script>
   <script src="/js/ride.js"></script>
 </body>

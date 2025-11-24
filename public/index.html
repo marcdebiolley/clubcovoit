@@ -29,17 +29,7 @@
 
 </head>
 <body data-require-auth="false">
-  <!-- Navbar Inline (état invité / connecté géré en JS comme sur clubs.html) -->
-  <div class="navbar">
-    <div class="nav-container">
-      <a href="/index.html" class="logo">ClubCovoit</a>
-      <nav class="nav-links">
-        <a href="/index.html">Accueil</a>
-        <a href="/clubs.html">Clubs</a>
-        <a href="/login.html">Connexion</a>
-      </nav>
-    </div>
-  </div>
+  <div id="navbar-placeholder"></div>
 
   <!-- Hero Section -->
   <section class="hero" id="accueil">
@@ -164,50 +154,6 @@
       <a class="btn btn-white" href="/club-create.html">Créer mon club maintenant</a>
     </div>
   </section>
-
-  <script>
-    // Gestion simple de l'auth pour la navbar statique
-    (function() {
-      var token = null;
-      try {
-        token = localStorage.getItem('userToken');
-      } catch {}
-      var isLoggedIn = !!token;
-
-      var navbar = document.querySelector('.navbar');
-      if (!navbar) return;
-
-      var nav = navbar.querySelector('.nav-links');
-      if (isLoggedIn && nav) {
-        // Menu étendu quand l'utilisateur est connecté
-        nav.innerHTML = `
-          <a href="/index.html">Accueil</a>
-          <a href="/clubs.html">Clubs</a>
-          <a href="/profile.html">Profil</a>
-          <a href="/about.html">About</a>
-          <a href="#" id="logoutLink">Déconnexion</a>
-        `;
-
-        var logoutLink = document.getElementById('logoutLink');
-        if (logoutLink) {
-          logoutLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            try {
-              localStorage.removeItem('userToken');
-            } catch {}
-            window.location.href = '/index.html';
-          });
-        }
-      }
-
-      var path = location.pathname || '/';
-      navbar.querySelectorAll('.nav-links a').forEach(function(link) {
-        if (link.getAttribute('href') === path) {
-          link.classList.add('active');
-        }
-      });
-    })();
-  </script>
 
   <script src="/js/header.js?v=3"></script>
   <script src="/js/utils.js?v=3"></script>
