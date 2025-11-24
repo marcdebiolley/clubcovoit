@@ -32,6 +32,10 @@ group :development do
 
   # Omakase Ruby styling for Rails
   gem "rubocop-rails-omakase", require: false
+
+ group :development do
+  gem "rubocop", require: false
+end
 end
 
 # Auth and API
