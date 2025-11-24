@@ -41,19 +41,19 @@ class Api::V1::CarsController < ApplicationController
   def destroy
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
-    
+
     # SOLUTION SIMPLE : Supprimer directement la voiture
     # Le modèle Car a un callback qui gère automatiquement les participants
     @car.destroy!
     recalc_ride!(ride, nil)
     render json: { ok: true }
   end
-  
+
   # POST /api/v1/cars/:id/force_destroy - Endpoint de secours
   def force_destroy
     ride = @car.ride
     return require_ride_access!(ride) if ride.protected? && !verify_ride_token(ride.id)
-    
+
     begin
       # Force la suppression en ignorant les contraintes
       ActiveRecord::Base.transaction do
