@@ -194,6 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const isOpen = navbar.classList.toggle('nav-open');
           toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
+        navbar.dataset.navMobileInit = '1';
       }
       // Dropdown / modal de connexion quand l'utilisateur n'est pas connecté
       if (!isLoggedIn && nav) {
@@ -303,6 +304,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (e) {
     console.error('Erreur chargement navbar', e);
   }
+});
+
+// Fallback: activer le burger sur les navbars inline (sans placeholder)
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.navbar').forEach((navbar) => {
+    if (navbar.dataset.navMobileInit === '1') return;
+    const nav = navbar.querySelector('.nav-links');
+    const toggle = navbar.querySelector('.nav-toggle');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', () => {
+      const isOpen = navbar.classList.toggle('nav-open');
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    navbar.dataset.navMobileInit = '1';
+  });
 });
 
 // Auto-setup pour les pages qui nécessitent une auth
