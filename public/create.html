@@ -10,9 +10,10 @@
   <link rel="stylesheet" href="/css/layout.css" />
   <link rel="stylesheet" href="/css/pages/create.css" />
   <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/components/navbar.css" />
 </head>
 <body class="page-create">
-  <div id="app-navbar"></div>
+  <div id="navbar-placeholder"></div>
   <div class="container">
     <div class="header">
       <h1>🏃‍♀️ Créer un covoiturage d'activité</h1>
@@ -61,7 +62,7 @@
           <label for="note">Note</label>
           <textarea id="note" placeholder="Infos complémentaires (équipement, point de rendez-vous, vestiaires, etc.)..."></textarea>
         </div>
-        <button class="btn" type="submit">🚀 Créer</button>
+        <button class="btn" type="submit">Créer le covoiturage</button>
       </form>
 
       <div id="inviteBox" class="link-box hidden mt-20">
@@ -70,7 +71,8 @@
       </div>
     </div>
   </div>
-  <script src="/js/header.js"></script>
+  <script src="/js/header.js?v=3"></script>
+  <script src="/js/utils.js?v=3"></script>
   <script src="/js/create.js"></script>
 </body>
 </html>

@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes Clubs - ClubCovoit</title>
+  <link rel="stylesheet" href="/css/text.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/components/navbar.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -107,19 +112,9 @@
   </style>
 </head>
 <body>
-  <!-- NAVBAR IDENTIQUE -->
-  <nav class="navbar">
-    <div class="nav-content">
-      <a href="/index-simple.html" class="logo">🚗 ClubCovoit</a>
-      <ul class="nav-menu">
-        <li><a href="/index-simple.html">Accueil</a></li>
-        <li><a href="/clubs-simple.html" class="active">Clubs</a></li>
-        <li><a href="/login.html" id="auth-link">Connexion</a></li>
-      </ul>
-    </div>
-  </nav>
+  <div id="navbar-placeholder"></div>
 
-  <div class="container">
+  <div class="container" style="padding-top: 80px;">
     <div class="page-header">
       <h1>👥 Mes Clubs</h1>
       <p>Gérez vos clubs et accédez à leurs événements</p>
@@ -200,5 +195,7 @@
       console.log('✅ Page clubs simple chargée !');
     });
   </script>
+  <script src="/js/header.js?v=3"></script>
+  <script src="/js/utils.js?v=3"></script>
 </body>
 </html>
