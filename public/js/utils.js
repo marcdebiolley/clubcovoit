@@ -187,6 +187,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!navbar) return;
 
       const nav = navbar.querySelector('.nav-links');
+      const toggle = navbar.querySelector('.nav-toggle');
+
+      if (toggle && nav) {
+        toggle.addEventListener('click', () => {
+          const isOpen = navbar.classList.toggle('nav-open');
+          toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+      }
       // Dropdown / modal de connexion quand l'utilisateur n'est pas connecté
       if (!isLoggedIn && nav) {
         const loginLink = nav.querySelector('#navLoginLink') || nav.querySelector('a[href="/login.html"]');

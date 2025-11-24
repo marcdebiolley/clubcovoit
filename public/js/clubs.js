@@ -62,8 +62,8 @@ function truncate(text, len = 140) {
 
 async function loadGroups() {
   try {
-    // Sur Plesk, on utilise un endpoint PHP simple
-    const groups = await fetchJSON('/api/v1/groups.php');
+    // Utilise l'API Rails JSON qui renvoie les groupes dont l'utilisateur est membre
+    const groups = await fetchJSON('/api/v1/groups');
     if (!groups || groups.length === 0) {
       listEl.innerHTML = `
         <div class="card grid-span-all text-center">
