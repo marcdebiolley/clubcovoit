@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
 
         // On stocke le token + user pour les autres pages
+        localStorage.setItem("userToken", data.token);   // pour l'ancien code
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("currentUser", JSON.stringify(data.user));
 
